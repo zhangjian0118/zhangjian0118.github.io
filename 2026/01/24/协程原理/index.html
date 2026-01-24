@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>协程原理 | Hexo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="原文：https:&#x2F;&#x2F;mp.weixin.qq.com&#x2F;s&#x2F;FlJjO6lC9_FuI8-VdOKR4w   理解有限状态机（FSM） 这个核心概念模型。 探明协程如何利用 标签（Label） 和 续体（Continuation） 来实现挂起与恢复。 通过具体示例，包括 async&#x2F;await，直观感受并发的实现。 弄清结构化并发（Structured Concurrency） 如何优雅地管理协程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="协程原理">
+<meta property="og:url" content="http://example.com/2026/01/24/%E5%8D%8F%E7%A8%8B%E5%8E%9F%E7%90%86/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="原文：https:&#x2F;&#x2F;mp.weixin.qq.com&#x2F;s&#x2F;FlJjO6lC9_FuI8-VdOKR4w   理解有限状态机（FSM） 这个核心概念模型。 探明协程如何利用 标签（Label） 和 续体（Continuation） 来实现挂起与恢复。 通过具体示例，包括 async&#x2F;await，直观感受并发的实现。 弄清结构化并发（Structured Concurrency） 如何优雅地管理协程">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-01-24T09:26:53.000Z">
+<meta property="article:modified_time" content="2026-01-24T09:27:19.967Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Hexo</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-协程原理" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/01/24/%E5%8D%8F%E7%A8%8B%E5%8E%9F%E7%90%86/" class="article-date">
+  <time class="dt-published" datetime="2026-01-24T09:26:53.000Z" itemprop="datePublished">2026-01-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      协程原理
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>原文：<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/FlJjO6lC9_FuI8-VdOKR4w">https://mp.weixin.qq.com/s/FlJjO6lC9_FuI8-VdOKR4w</a></p>
+<blockquote>
+<ul>
+<li><strong>理解有限状态机（FSM）</strong> 这个核心概念模型。</li>
+<li>探明协程如何利用 <strong>标签（Label）</strong> 和 <strong>续体（Continuation）</strong> 来实现挂起与恢复。</li>
+<li>通过具体示例，包括 <code>async/await</code>，直观感受并发的实现。</li>
+<li>弄清<strong>结构化并发（Structured Concurrency）</strong> 如何优雅地管理协程的生命周期。</li>
+<li>揭示<strong>取消（Cancellation）</strong> 与<strong>异常（Exception）</strong> 在这套状态机机制下是如何无缝传播的。</li>
+</ul>
+</blockquote>
+<h2 id="有限状态机FSM"><a href="#有限状态机FSM" class="headerlink" title="有限状态机FSM"></a>有限状态机FSM</h2><h3 id="FSM模型："><a href="#FSM模型：" class="headerlink" title="FSM模型："></a>FSM模型：</h3><ol>
+<li><strong>一组有限的状态（States）</strong>：比如 <code>STATE_0</code>, <code>STATE_1</code>, <code>STATE_2</code>。</li>
+<li><strong>状态转移（Transitions）</strong>：定义了从一个状态到另一个状态的规则。</li>
+<li><strong>一个初始状态（Start State）</strong>：执行的起点。</li>
+<li><strong>输入&#x2F;事件（Inputs&#x2F;Events）</strong>：触发状态转移的外部条件。</li>
+</ol>
+<h3 id="与协程对应："><a href="#与协程对应：" class="headerlink" title="与协程对应："></a>与协程对应：</h3><ol>
+<li><strong>状态（State）</strong>：协程中，<strong>每个挂起点之间（或函数开头到第一个挂起点）的代码区域，就是一个状态</strong>。</li>
+<li><strong>状态转移（Transition）</strong>：<strong>调用挂起函数（<strong><strong>suspend function</strong></strong>）就是一次状态转移</strong>。当协程挂起时，它从当前状态转移到一个“等待”状态；当异步操作完成时，它又转移到下一个状态。</li>
+<li><strong>初始状态（Start State）</strong>：挂起函数开始执行，但还未遇到任何挂起点时的状态。</li>
+<li><strong>输入&#x2F;事件（Input&#x2F;Event）</strong>：触发状态恢复的信号，例如网络请求收到响应、<code>delay</code> 时间结束、数据库查询返回结果等。</li>
+</ol>
+<p><strong>一个实例：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">suspend fun myCoroutine() &#123;</span><br><span class="line">    // ---- State 0 ----</span><br><span class="line">    println(&quot;协程开始，准备执行第一个异步任务&quot;)</span><br><span class="line">    val result1 = suspendApiCall1() // &lt;-- Transition 1 (挂起点)</span><br><span class="line"></span><br><span class="line">    // ---- State 1 ----</span><br><span class="line">    println(&quot;第一个任务完成，结果是: $result1&quot;)</span><br><span class="line">    delay(1000) // &lt;-- Transition 2 (挂起点)</span><br><span class="line"></span><br><span class="line">    // ---- State 2 ----</span><br><span class="line">    println(&quot;延迟结束，准备执行第二个异步任务&quot;)</span><br><span class="line">    val result2 = suspendApiCall2() // &lt;-- Transition 3 (挂起点)</span><br><span class="line"></span><br><span class="line">    // ---- State 3 ----</span><br><span class="line">    println(&quot;第二个任务完成，结果是: $result2&quot;)</span><br><span class="line">    // 协程结束</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这段代码的执行流程可以被精确地描述为一个 FSM：</p>
+<ol>
+<li><strong>State 0</strong>：执行 <code>println</code>，然后调用 <code>suspendApiCall1()</code>，协程挂起。FSM 停留在“等待 <code>suspendApiCall1</code> 完成”的阶段。</li>
+<li><strong>Event 1</strong>：<code>suspendApiCall1</code> 的结果返回。</li>
+<li><strong>State 1</strong>：协程恢复，FSM 进入 State 1。执行 <code>println</code>，然后调用 <code>delay(1000)</code>，协程再次挂起。</li>
+<li><strong>Event 2</strong>：1000 毫秒的延迟结束。</li>
+<li><strong>State 2</strong>：协程恢复，FSM 进入 State 2。执行 <code>println</code>，调用 <code>suspendApiCall2()</code> 并挂起。</li>
+<li><strong>Event 3</strong>：<code>suspendApiCall2</code> 的结果返回。</li>
+<li><strong>State 3</strong>：协程恢复，FSM 进入 State 3。执行 <code>println</code>，函数执行完毕，FSM 到达终点。</li>
+</ol>
+<p>这个函数有 <strong>3 个挂起点</strong>，因此编译器为它生成了一个拥有 <strong>4 个状态</strong>（初始状态 + 3 个挂起后的状态）的状态机。</p>
+<blockquote>
+<p><strong>核心洞察</strong>：一个包含 N 个挂起点的 <code>suspend</code> 函数，通常会被编译成一个拥有 N+1 个状态的 FSM。</p>
+</blockquote>
+<h2 id="suspend-关键字与-Continuation-的魔法"><a href="#suspend-关键字与-Continuation-的魔法" class="headerlink" title="suspend 关键字与 Continuation 的魔法"></a><code>suspend</code> 关键字与 Continuation 的魔法</h2><h3 id="suspend-到底改变了什么？"><a href="#suspend-到底改变了什么？" class="headerlink" title="suspend 到底改变了什么？"></a><code>suspend</code> 到底改变了什么？</h3><p>当你给一个函数加上 <code>suspend</code>，编译器就会在底层对它进行一次“大手术”。我们来看一个简单的挂起函数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">suspend fun fetchData(): String &#123;</span><br><span class="line">    // 模拟网络请求</span><br><span class="line">    delay(1000)</span><br><span class="line">    return &quot;some result&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在你的代码里，它看起来只是一个会返回 <code>String</code> 的函数。但在编译后，它的函数签名和行为都发生了根本性的变化。</p>
+<p>编译器会做两件核心的事情：</p>
+<ol>
+<li><strong>在参数列表末尾，悄悄增加一个 <strong><strong>Continuation</strong></strong> 类型的参数。</strong></li>
+<li><strong>将函数的返回值类型改为 <strong><strong>Any?</strong></strong> (在 JVM 字节码中是 <strong><strong>Object</strong></strong>)。</strong></li>
+</ol>
+<p>所以，上面的 <code>fetchData</code> 函数在编译后的样子，概念上等同于：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// 这是编译器生成的函数签名（概念上的伪代码）</span><br><span class="line">fun fetchData(continuation: Continuation&lt;String&gt;): Any?</span><br></pre></td></tr></table></figure>
+
+<h3 id="核心枢纽：续体（Continuation）"><a href="#核心枢纽：续体（Continuation）" class="headerlink" title="核心枢纽：续体（Continuation）"></a><strong>核心枢纽：续体（Continuation）</strong></h3><p>新增的 <code>Continuation</code> 参数是整个协程机制的核心枢纽。它是一个接口，定义了协程恢复执行所需要的一切：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 续体接口的定义</span><br><span class="line">interface Continuation&lt;in T&gt; &#123;</span><br><span class="line">    // 协程的上下文，包含调度器（Dispatcher）、Job 等信息</span><br><span class="line">    val context: CoroutineContext</span><br><span class="line">    </span><br><span class="line">    // 用一个 Result 来恢复协程，它可以是成功的结果，也可以是失败的异常</span><br><span class="line">    fun resumeWith(result: Result&lt;T&gt;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>continuation</code> 不仅知道如何继续执行代码，还携带了执行代码所需的环境信息（比如应该在哪个线程上恢复）。</p>
+<p>当一个挂起函数调用另一个挂起函数时，调用者会把自己的 <code>continuation</code> 实例传递给被调用者。这样，<code>continuation</code> 就像链条一样串联起来，形成了一条“调用链”的镜像。当最深层的挂起函数执行完毕后，它会通过调用 <code>resumeWith</code> 来唤醒它的上游，然后上游再唤醒上上游，直到整个调用链恢复完毕。</p>
+<h3 id="Any-返回值：挂起的信号"><a href="#Any-返回值：挂起的信号" class="headerlink" title="Any? 返回值：挂起的信号"></a><code>Any?</code> 返回值：挂起的信号</h3><p>将返回值改为 <code>Any?</code> 赋予了挂起函数一种“双重返回”的能力。一个挂起函数在被调用后，可能会有两种返回情况：</p>
+<ol>
+<li><strong>直接返回最终结果</strong>：如果函数无需挂起，可以立即算出结果（例如，数据从缓存中直接命中），那么它会直接返回这个结果值（比如一个 <code>String</code>）。</li>
+<li><strong>返回一个特殊标记 <code>COROUTINE_SUSPENDED</code></strong>：如果函数需要执行一个耗时操作（如网络请求），它会立即返回一个名为 <code>COROUTINE_SUSPENDED</code> 的特殊单例对象。这个返回值就像一个信号，告诉调用方：“我已经挂起了，不要在这里傻等。等我的异步任务完成了，我会通过你传给我的 <code>continuation</code> 来通知你结果。”</li>
+</ol>
+<p>这个双重返回机制是协程实现非阻塞的关键。它允许协程在能够快速完成时保持高效率（避免不必要的调度），在需要等待时又能释放线程（实现挂起）。</p>
+<h3 id="魔法揭秘：局部变量如何跨越挂起而存在？"><a href="#魔法揭秘：局部变量如何跨越挂起而存在？" class="headerlink" title="魔法揭秘：局部变量如何跨越挂起而存在？"></a>魔法揭秘：局部变量如何跨越挂起而存在？</h3><p>这可能是协程最神奇的地方：函数明明已经“返回”了（返回了 <code>COROUTINE_SUSPENDED</code>），栈帧也应该销毁了，但为什么恢复之后，函数内部的局部变量还能继续使用？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">suspend fun processOrder() &#123;</span><br><span class="line">    val orderId = generateOrderId() // 创建局部变量</span><br><span class="line">    println(&quot;开始处理订单: $orderId&quot;)</span><br><span class="line">    </span><br><span class="line">    delay(1000) // 在这里挂起，函数返回，栈帧理论上消失</span><br><span class="line">    </span><br><span class="line">    // 1秒后恢复执行...</span><br><span class="line">    // 为什么这里的 orderId 变量还活着？</span><br><span class="line">    submitOrder(orderId) </span><br><span class="line">    println(&quot;订单 $orderId 已提交&quot;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>答案依然在 <code>Continuation</code> 对象里。编译器进行了一次巧妙的“偷梁换柱”：</p>
+<blockquote>
+<p>所有需要在挂起点之间共享的局部变量，都会被编译器从栈上“提升”为 <code>Continuation</code> 实现类的成员变量（字段）。</p>
+</blockquote>
+<p>对于上面的 <code>processOrder</code> 函数，编译器会为它生成一个类似下面这样的状态机类（继承自 <code>ContinuationImpl</code>）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">// 编译器自动生成的 FSM 类（概念伪代码）</span><br><span class="line">class ProcessOrderStateMachine(completion: Continuation&lt;Unit&gt;) : ContinuationImpl(completion) &#123;</span><br><span class="line">    // 状态标签</span><br><span class="line">    var label: Int = 0</span><br><span class="line">    // 局部变量被提升为类的成员变量</span><br><span class="line">    var orderId: String? = null </span><br><span class="line">    // ... 其他可能需要的字段</span><br><span class="line"></span><br><span class="line">    override fun invokeSuspend(result: Any?): Any? &#123;</span><br><span class="line">        // ... 根据 label 执行状态机的逻辑 ...</span><br><span class="line">        // 在这里可以访问和修改 this.orderId</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行流程就变成了：</p>
+<ol>
+<li>调用 <code>processOrder</code> 时，创建一个 <code>ProcessOrderStateMachine</code> 实例。</li>
+<li>执行到 <code>val orderId = generateOrderId()</code>，得到的值被存入 <code>stateMachine.orderId</code> 字段中。</li>
+<li>调用 <code>delay(1000)</code> 时，函数挂起。<code>stateMachine</code> 对象作为一个普通对象，继续存活在堆内存中。</li>
+<li>1秒后，<code>delay</code> 完成，通过 <code>continuation.resumeWith()</code> 唤醒协程。</li>
+<li><code>stateMachine</code> 的 <code>invokeSuspend</code> 方法被调用，它从 <code>this.orderId</code> 字段中读回之前保存的值，继续执行后续逻辑。</li>
+</ol>
+<p>通过这种方式，局部变量的生命周期与 <code>Continuation</code> 对象绑定，而非传统的函数调用栈。只要协程还在运行（<code>Continuation</code> 对象还在），它的内部状态就永远不会丢失。</p>
+<h2 id="协作的艺术：结构化并发、取消与异常"><a href="#协作的艺术：结构化并发、取消与异常" class="headerlink" title="协作的艺术：结构化并发、取消与异常"></a>协作的艺术：结构化并发、取消与异常</h2><p>我们已经理解了单个协程是如何作为 FSM 运作的。但在真实的应用中，我们通常会同时运行多个协程。<strong>结构化并发（Structured Concurrency）</strong> 正是 Kotlin 协程提供的用于组织、协调这些 FSM 的强大框架。</p>
+<blockquote>
+<p><strong>结构化并发的核心原则</strong>：“一个协程作用域（Coroutine Scope）必须在它的所有子协程全部完成之后，才能进入完成状态。”</p>
+</blockquote>
+<p>这个原则带来了三个至关重要的保证：</p>
+<ol>
+<li><strong>生命周期绑定</strong>：子协程的生命周期不会超过其父协程。当父协程被取消时，所有的子协程也会被自动取消，从而杜绝了内存泄漏的风险。</li>
+<li><strong>异常传播</strong>：任何一个子协程如果抛出未捕获的异常，该异常会向上传播给父协程，并默认取消所有其他兄弟协程。</li>
+<li><strong>可预见的清理</strong>：由于生命周期是受控的，你可以确信在协程作用域结束时，所有由它启动的异步任务都已经结束。</li>
+</ol>
+<h3 id="Job-的双重身份：生命周期状态机"><a href="#Job-的双重身份：生命周期状态机" class="headerlink" title="Job 的双重身份：生命周期状态机"></a>Job 的双重身份：生命周期状态机</h3><p>每个协程都关联着一个 <code>Job</code> 对象，它不仅是协程的句柄，其本身也是一个<strong>生命周期状态机</strong>，与我们之前讨论的<strong>执行状态机</strong>并行运作。</p>
+<ul>
+<li><strong>执行 FSM</strong>（基于 <code>label</code>）：负责协程的业务逻辑，决定代码“执行到哪里”。</li>
+<li><strong>Job FSM</strong>（基于生命周期状态）：负责协程的存活状态，管理 <code>Active</code>, <code>Completing</code>, <code>Cancelled</code> 等状态。</li>
+</ul>
+<p>当你调用 <code>job.cancel()</code> 时，你改变的是 Job FSM 的状态。<strong>这个状态变化会在下一次执行 FSM 进行状态转移（即遇到挂起点）时被检查到</strong>。</p>
+<h3 id="取消的“合作”本质"><a href="#取消的“合作”本质" class="headerlink" title="取消的“合作”本质"></a>取消的“合作”本质</h3><p>协程的取消机制是**合作式（Cooperative）**的，而非抢占式。这意味着，调用 <code>job.cancel()</code> 并非像发出一个“立即停止”的命令，而更像是升起一个“请尽快停止”的旗帜。</p>
+<p>正在运行的协程需要<strong>主动检查</strong>这个旗帜，然后才能优雅地停止自己。</p>
+<ul>
+<li><strong>如何检查？</strong> 所有 <code>kotlinx.coroutines</code> 包中内置的挂起函数（如 <code>delay</code>, <code>yield</code>, <code>withContext</code> 等）都已经内置了取消检查。所以，只要你的协程在调用这些函数，它就是可取消的。</li>
+<li><strong>何时会出问题？</strong> 如果你的协程正在执行一个耗时长但又没有调用任何挂起函数的 CPU 密集型计算，那么它将无法响应取消请求。</li>
+</ul>
+<p>看一个错误的例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// ❌ 错误示范：这个协程是不可取消的</span><br><span class="line">scope.launch &#123;</span><br><span class="line">    var next = System.currentTimeMillis()</span><br><span class="line">    // 一个繁忙的、没有挂起点的循环</span><br><span class="line">    while (i &lt; 5) &#123;</span><br><span class="line">        if (System.currentTimeMillis() &gt;= next) &#123;</span><br><span class="line">            println(&quot;job: 我还在运行... $&#123;i++&#125;&quot;)</span><br><span class="line">            next += 500L</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>即使你在外部调用 <code>cancel()</code>，这个循环也会顽固地执行到结束。</p>
+<p>正确的做法是，在这样的长循环中手动插入挂起点或检查点：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// ✅ 正确示范：通过 yield() 或 ensureActive() 使其可取消</span><br><span class="line">scope.launch &#123;</span><br><span class="line">    for (i in 1..1000) &#123;</span><br><span class="line">        // ... 执行一些计算 ...</span><br><span class="line">        if (i % 100 == 0) &#123;</span><br><span class="line">            yield() // 或 isActive 检查，或 ensureActive()</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>yield()</code>：是一个挂起函数，它会检查取消状态，并把执行权让给其他协程。</li>
+<li><code>isActive</code>：是一个布尔属性，只检查状态而不挂起。</li>
+<li><code>ensureActive()</code>：是一个函数，如果协程已被取消，它会立即抛出 <code>CancellationException</code>。</li>
+</ul>
+<h3 id="异常如何穿越状态机？"><a href="#异常如何穿越状态机？" class="headerlink" title="异常如何穿越状态机？"></a>异常如何穿越状态机？</h3><p>协程的异常处理机制同样得益于 <code>Continuation</code>。当异步操作失败时，它会调用 <code>continuation.resumeWith(Result.failure(exception))</code>。</p>
+<p>这个被 <code>Result</code> 包装的异常会在协程恢复的那一刻，在挂起点的下一行被重新抛出。这使得我们可以像处理同步代码一样，用标准的 <code>try-catch</code> 语句来捕获异步代码的异常。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">suspend fun safeOperation() &#123;</span><br><span class="line">    try &#123;</span><br><span class="line">        // State 0 -&gt; State 1</span><br><span class="line">        val result = riskyApiCall() // 如果这里挂起，并在恢复时抛出异常...</span><br><span class="line">        </span><br><span class="line">        // ---- 恢复点 ----</span><br><span class="line">        // 异常会在这里被重新抛出</span><br><span class="line">        </span><br><span class="line">        println(&quot;成功: $result&quot;)</span><br><span class="line"></span><br><span class="line">    &#125; catch (e: NetworkException) &#123;</span><br><span class="line">        // State 1 (异常路径)</span><br><span class="line">        // ... 状态机会跳转到这里执行</span><br><span class="line">        println(&quot;捕获到网络异常: $e&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译器会将 <code>try-catch</code> 块也融入到状态机中，为 FSM 生成不同的路径。如果 <code>riskyApiCall()</code> 成功恢复，FSM 就走正常路径；如果它带着异常恢复，FSM 就跳转到 <code>catch</code> 块对应的状态。</p>
+<p><strong>当异常未被捕获时</strong>，它会沿着 <code>Job</code> 的父子关系树向上传播。默认情况下（使用 <code>launch</code> 或 <code>async</code>），一个子协程的失败会导致其父协程被取消，进而取消所有其他的兄弟协程。这就是“一体溃败，全军覆没”的默认策略，它确保了任务组的一致性。</p>
+<p>如果你希望一个子任务的失败不影响其他兄弟任务，可以使用 <code>supervisorScope</code> 或 <code>SupervisorJob</code>。这会将异常传播策略从“向上传播”改为“向下处理”，交由你自己通过 <code>CoroutineExceptionHandler</code> 来处理。</p>
+<h2 id="实践意义与总结"><a href="#实践意义与总结" class="headerlink" title="实践意义与总结"></a>实践意义与总结</h2><p>回到我们最初的问题：Kotlin 协程如何在 JVM 上实现看似不可能的挂起与恢复？</p>
+<p>现在我们有了清晰的答案：通过<strong>编译期****代码生成</strong>。Kotlin 编译器扮演了一位勤奋的翻译官，将我们写的简洁的挂起函数，转换成了一个包含状态标签、局部变量字段和<code>when</code>跳转逻辑的<strong>有限状态机</strong>类。</p>
+<p><code>suspend</code> 关键字是触发转换的信号，而 <code>Continuation</code> 对象则是连接状态、传递结果和上下文的生命线。</p>
+<p><strong>关键回顾：</strong></p>
+<ul>
+<li><strong>协程即状态机</strong>：每个挂起函数都被编译成一个 FSM，挂起点是状态转移的边界。</li>
+<li><strong>Continuation</strong>** 保存一切**：它封装了状态（<code>label</code>）、上下文（<code>context</code>）以及跨越挂起点的局部变量。</li>
+<li><strong>suspend</strong>** 改造函数**：它为函数添加 <code>Continuation</code> 参数，并将返回值改为 <code>Any?</code>，以支持“立即返回结果”或“返回挂起信号”两种模式。</li>
+<li><strong>结构化并发是 FSM 的协作框架</strong>：通过 <code>Job</code> 的父子关系，将独立的 FSM 组织成一个可管理的、生命周期同步的树状结构。</li>
+<li><strong>取消与异常是合作式的</strong>：它们依赖于 FSM 在状态转移点（挂起点）的主动检查，并通过 <code>Continuation</code> 和 <code>Job</code> 树进行传播。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/01/24/%E5%8D%8F%E7%A8%8B%E5%8E%9F%E7%90%86/" data-id="cuidiJGgBh0HslO0_rSRQUhEF" data-title="协程原理" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2026/01/24/%E6%A1%A5%E6%A8%A1%E5%BC%8F/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">桥模式</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">January 2026</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/01/24/%E5%8D%8F%E7%A8%8B%E5%8E%9F%E7%90%86/">协程原理</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/24/%E6%A1%A5%E6%A8%A1%E5%BC%8F/">桥模式</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/19/%E8%A3%85%E9%A5%B0%E5%99%A8%E6%A8%A1%E5%BC%8F/">装饰器模式</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/18/test/">SOLID设计原则</a>
+          </li>
+        
+          <li>
+            <a href="/2026/01/18/hello-world/">Hello World</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
