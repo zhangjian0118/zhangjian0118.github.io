@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>HTTP的Header和Body | Jian Zhang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="HeaderHeader 是 HTTP 请求和响应消息中，用于传递附加信息的部分（也就是“元数据”，即描述数据的数据），比如 Content-Type（内容类型）、Content-Length（内容大小）、Content-Encoding（指定的压缩算法）。 我们来看看具体的例子。 HostHost 用于指定目标服务器的主机地址。比如有这么一个请求报文： 123GET &#x2F;article&#x2F;1 HTT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP的Header和Body">
+<meta property="og:url" content="http://example.com/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/index.html">
+<meta property="og:site_name" content="Jian Zhang">
+<meta property="og:description" content="HeaderHeader 是 HTTP 请求和响应消息中，用于传递附加信息的部分（也就是“元数据”，即描述数据的数据），比如 Content-Type（内容类型）、Content-Length（内容大小）、Content-Encoding（指定的压缩算法）。 我们来看看具体的例子。 HostHost 用于指定目标服务器的主机地址。比如有这么一个请求报文： 123GET &#x2F;article&#x2F;1 HTT">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/login.png">
+<meta property="article:published_time" content="2026-02-13T08:47:37.000Z">
+<meta property="article:modified_time" content="2026-02-13T08:50:15.443Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/login.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Jian Zhang" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Jian Zhang</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">技术 · 设计模式 · 思考</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-HTTP的Header和Body" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/" class="article-date">
+  <time class="dt-published" datetime="2026-02-13T08:47:37.000Z" itemprop="datePublished">2026-02-13</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      HTTP的Header和Body
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h2><p>Header 是 HTTP 请求和响应消息中，用于传递附加信息的部分（也就是“元数据”，即描述数据的数据），比如 Content-Type（内容类型）、Content-Length（内容大小）、Content-Encoding（指定的压缩算法）。</p>
+<p>我们来看看具体的例子。</p>
+<h3 id="Host"><a href="#Host" class="headerlink" title="Host"></a>Host</h3><p><a href="https://link.juejin.cn/?target=https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers/Host">Host</a> 用于指定目标服务器的主机地址。比如有这么一个请求报文：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET /article/1 HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>example.com</code> 指向了目标主机。</p>
+<p>这里需要注意，在请求发起之前，浏览器会先从 URL（如 <code>https://example.com</code>）中提取出域名 <code>example.com</code>，然后通过 DNS（Domain Name System）查询它对应的 IP 地址。得到 IP 地址后，浏览器才会往这个 IP 地址发送 HTTP 请求，而这个请求的 Header 中就包含了 <code>Host</code>。</p>
+<p>所以 <code>Host</code> Header 并不是用来查找 IP 地址的，那么它的作用是什么？</p>
+<p>其实 <code>Host</code> 是用于让服务器进行判断的。因为一台服务器上可能会运行多个网站（虚拟主机），服务器需要通过 <code>Host</code> 知道当前请求要访问哪个网站。</p>
+<p>简单来说，域名 <code>example.com</code> 有两个作用：</p>
+<ol>
+<li>在请求发起前，通过 DNS 查找到目标主机的 IP 地址。</li>
+<li>在请求到达后，作为 <code>Host</code> Header 的值，让目标主机能够定位到具体的子网站。</li>
+</ol>
+<h3 id="Content-Type-Content-Length"><a href="#Content-Type-Content-Length" class="headerlink" title="Content-Type&#x2F;Content-Length"></a>Content-Type&#x2F;Content-Length</h3><p>Content-Type&#x2F;Content-Length 这两个 Header 分别表示 Body 的类型和长度。</p>
+<h4 id="Content-Length"><a href="#Content-Length" class="headerlink" title="Content-Length"></a>Content-Length</h4><p>Content-Length 就是 Body 内容的字节数。例如下面这个报文：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST /users/1 HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line">Content-Length: 21</span><br><span class="line"></span><br><span class="line">name=rain&amp;gender=male</span><br></pre></td></tr></table></figure>
+
+<p>其 Body 部分（<code>name=rain&amp;gender=male</code>）共有 21 个字节，所以 <code>Content-Length</code> 的值就是 21。</p>
+<p>为什么需要提前指定长度，不能让接收方自己计算吗？</p>
+<p>因为 Body 部分可能是二进制数据（如图片、音频）。而二进制数据的内容中，可能包含任意的字节值。这时，我们<strong>无法指定一个固定的符号</strong>来作为 Body 的结束符，因为任何结束符都可能会在二进制数据中提前出现。所以为了避免数据被意外截断，最简单的解决方法就是在发送前，通过 <code>Content-Length</code> 指定总长度。</p>
+<h4 id="Content-Type"><a href="#Content-Type" class="headerlink" title="Content-Type"></a>Content-Type</h4><p>Content-Type 分好几种，常用的有：</p>
+<ul>
+<li><code>text/html</code>: HTML 页面，用于给浏览器渲染界面。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: text/html; charset=utf-8</span><br><span class="line">Content-Length: 130488</span><br><span class="line"></span><br><span class="line">&lt;!doctype html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;title&gt;这是标题&lt;/title&gt;</span><br><span class="line">    &lt;meta charset=&quot;utf-8&quot;&gt;</span><br><span class="line">...</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>application/x-www-form-urlencoded</code>: 普通表单，它的格式和 URL 参数的格式相同，以<code>key=value</code>的形式来存储纯文本。</li>
+</ul>
+<p>只有纯文本的表单才叫普通表单，最常见的就是登录界面：</p>
+<img src="/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/login.png" class="">
+
+<p>点击登录时，请求的 <code>Content-Type</code> 就是 <code>application/x-www-form-urlencoded</code>。服务器从 Body 中取出的信息就是 <code>username=...&amp;password=...</code>，中间使用<code>&amp;</code>进行分隔。</p>
+<p>如果想要在 Android 中用 Retrofit 提交普通表单，你可以这样写：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@FormUrlEncoded</span><br><span class="line">@POST(&quot;user/login&quot;)</span><br><span class="line">suspend fun login(@Field(&quot;username&quot;) username: String, @Field(&quot;password&quot;) password: String)</span><br></pre></td></tr></table></figure>
+
+<p>上面代码构建的请求报文，会是下面这样的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">POST /user/login HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 30</span><br><span class="line"></span><br><span class="line">username=admin&amp;password=123456</span><br></pre></td></tr></table></figure>
+
+<p>所以 Retrofit 中的 <code>@FormUrlEncoded</code> 和 <code>@Field</code> 注解是用于发送这种普通表单请求的。</p>
+<ul>
+<li><code>multipart/form-data</code>: 这也是一种表单，叫做多部分表单。它相较于普通表单，除了可以提交文字外，还可以提交文件等二进制数据。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">POST /users HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line">Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW</span><br><span class="line">Content-Length: 149056</span><br><span class="line"></span><br><span class="line">----WebKitFormBoundary7MA4YWxkTrZu0gW</span><br><span class="line">Content-Disposition:form-data; name=&quot;name&quot;</span><br><span class="line"></span><br><span class="line">jack</span><br><span class="line">----WebKitFormBoundary7MA4YWxkTrZu0gW</span><br><span class="line">Content-Disposition:form-data; name=&quot;avatar&quot;; filename=&quot;my_avatar.jpg&quot;</span><br><span class="line">Content-Type: image/jpeg</span><br><span class="line"></span><br><span class="line">4AAQSkZJRgABAQEASABIAAD...</span><br><span class="line">----WebKitFormBoundary7MA4YWxkTrZu0gW</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可以看到，它多出了一个 <code>boundary</code>，用来分隔 Body 中的不同部分。</p>
+<p>为什么需要专门分隔呢？</p>
+<p>其实普通表单也需要分隔，只不过分隔符为 <code>&amp;</code>。但如果要提交二进制文件，就不能使用简单、固定的符号来分隔了，因为文件的内容中可能包含这个符号，这样会导致解析错误。所以，需要一个独特的、不容易重复的随机字符串来做分隔符，也就是上述的 <code>boundary</code>。</p>
+<blockquote>
+<p>当然，文件的二进制内容中也可能会出现 boundary，只不过这个概率非常低，可以忽略。就算真遇到了，也只需重发一次请求就行。</p>
+</blockquote>
+<p>如果想要使用 Retrofit 提交这种表单，你可以这样写：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Multipart</span><br><span class="line">@PUT(&quot;user/avatar&quot;)</span><br><span class="line">suspend fun updateUserAvatar(@Part(&quot;avatar&quot;) avatar: RequestBody): User</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>用这种方式来上传图片等文件，是目前最主流的做法。</p>
+<ul>
+<li><code>application/json</code>: 用 JSON 格式传递数据，在现在 Api 的请求或响应中非常常见。请求用户信息：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 请求报文</span><br><span class="line">POST /users HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line">Content-Type: application/json; charset=utf-8</span><br><span class="line">Content-Length: 26</span><br><span class="line"></span><br><span class="line">&#123;&quot;name&quot;:&quot;jack&quot;,&quot;age&quot;:&quot;21&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 响应报文</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">content-type: application/json; charset=utf-8</span><br><span class="line">content-length: 157</span><br><span class="line"></span><br><span class="line">&#123;&quot;name&quot;: &quot;Simon&quot;, &quot;age&quot;: 2, ...&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>它和 <code>application/x-www-form-urlencoded</code> 都可以提交文本数据，实际开发中具体用哪个，应该看后端接口的要求。</p>
+<p>用 Retrofit 提交 JSON 数据，代码可以这样写：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@POST(&quot;user/new&quot;)</span><br><span class="line">suspend fun createUser(@Body user: User): User</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>image/jpeg/application/zip ...</code>: 单文件类型，直接将 Body 内容当做一个文件进行传输。</li>
+</ul>
+<p>平时下载图片，收到的响应几乎都是这种格式。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">content-type: image/jpeg</span><br><span class="line">content-length: 13204</span><br><span class="line"></span><br><span class="line">hkSfsD89...</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>而上传单个文件也可以使用这种格式。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">POST /user/1/avatar HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line">Content-Type: image/jpeg</span><br><span class="line">Content-Length: 13204</span><br><span class="line"></span><br><span class="line">hkSfsD89...</span><br></pre></td></tr></table></figure>
+
+<p>有了这个，对于上传单个文件的情况，我们就可以使用这种方式了，这种方式比 <code>multipart/form-data</code> 更直接。</p>
+<p>使用 Retrofit，代码可以这样写</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@POST(&quot;user/&#123;id&#125;/avatar&quot;)</span><br><span class="line">suspend fun updateAvatar(@Path(&quot;id&quot;) id: String,@Body avatar: RequestBody): User </span><br><span class="line"></span><br><span class="line">// 调用该方法前，创建一个 RequestBody 对象</span><br><span class="line">val avatarBody = avatarFile.asRequestBody(&quot;image/jpeg&quot;.toMediaTypeOrNull())</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="Chunked-Transfer-Encoding"><a href="#Chunked-Transfer-Encoding" class="headerlink" title="Chunked Transfer Encoding"></a>Chunked Transfer Encoding</h3><p>再来看看 <code>Chunked Transfer Encoding</code>（分块传输编码），它用于将内容分成多个块进行传输。比如当服务器需要耗费很长时间来准备完整的响应数据时，就可以将已经准备好的一部分数据发给客户端，后续的数据等到准备好后再补发。</p>
+<p>这时有个问题：因为数据并未完全准备好，服务器不知道内容的总长度（<code>Content-Length</code>）是多少。为此，就出现了分块传输。</p>
+<p>当响应头中出现 <code>Transfer-Encoding: chunked</code> 时，表示当前为分块传输，此时不再有 <code>Content-Length</code>。</p>
+<p>客户端会按照一定格式来接收数据，收到长度为 0 的块时，表示此次传输结束。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// Body</span><br><span class="line">&lt;length 1&gt;</span><br><span class="line">&lt;data 1&gt;</span><br><span class="line">&lt;length 2&gt;</span><br><span class="line">&lt;data 2&gt;</span><br><span class="line">...</span><br><span class="line">0    // 0 表示内容结束</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这样做可以提高服务器的响应速度。</p>
+<h3 id="Location"><a href="#Location" class="headerlink" title="Location"></a>Location</h3><p><code>Location</code> 用来做重定向的，指定一个要跳转的目标 URL。</p>
+<p>比如访问 <code>http://example.com</code> 会自动跳转到 <code>https://example.com</code>，这就是 <code>Location</code> 的作用。</p>
+<p>这个过程是：当访问 <code>http://example.com</code> 时，服务器返回的状态码是 <code>3xx</code>。这时，浏览器会向响应报文中 <code>Location</code> Header 所指向的 URL（如 <code>https://example.com</code>）再次发起请求。</p>
+<p>这个过程，对于浏览器来说是自动的。我们在代码中向 <code>http://example.com</code> 网址发起请求，也会发生这个过程。这是因为 OkHttp 会自动处理重定向，所以我们通常能够直接拿到最终的网页数据。</p>
+<h3 id="User-Agent"><a href="#User-Agent" class="headerlink" title="User-Agent"></a>User-Agent</h3><p><code>User-Agent</code> 是用户代理，就是用于表明客户端的身份的，比如使用的浏览器、使用的操作系统、使用的应用。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">user-agent</span><br><span class="line">Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36</span><br></pre></td></tr></table></figure>
+
+<p>服务器可以通过 <code>User-Agent</code> 来判断客户端的类型，然后返回不同的内容，比如给手机返回移动端网页。</p>
+<h3 id="Range-Accept-Range"><a href="#Range-Accept-Range" class="headerlink" title="Range&#x2F;Accept Range"></a>Range&#x2F;Accept Range</h3><p><code>Range/Accept Range</code> 用于指定请求内容的范围。</p>
+<p>如果响应报文的 Header 中存在 <code>Accept-Ranges: bytes</code>，说明它<strong>支持分段下载</strong>。这时，我们就可以在请求头中加上 <code>Range: bytes=0-1024</code>，表示此次请求只需获取第 0 到 1024 个字节的内容。如果请求的是一张图片，那么这种图片就只会一部分。</p>
+<p>分段加载是实现<strong>断点续传</strong>和<strong>多线程下载</strong>的核心技术。</p>
+<p>另外，在使用分段加载时，响应头通常会带有 <code>Content-Range: bytes 0-1024/4096</code>，用于提示客户端当前返回的分段以及内容的总大小。</p>
+<h2 id="其他-Header"><a href="#其他-Header" class="headerlink" title="其他 Header"></a>其他 Header</h2><ul>
+<li><code>Accept</code>: 告诉服务器，客户端能接受的数据类型，如 <code>application/json</code>。</li>
+<li><code>Accept-Charset</code>: 告诉服务器，客户端能接受的字符集，如 <code>utf-8</code>。</li>
+<li><code>Accept-Encoding</code>: 告诉服务器，客户端支持的压缩类型，如 <code>gzip</code>。</li>
+<li><code>Content-Encoding</code>: 服务器告诉客户端，实际使用的压缩类型，如 <code>gzip</code>。</li>
+</ul>
+<h2 id="Cache"><a href="#Cache" class="headerlink" title="Cache"></a>Cache</h2><p><code>Cache</code> 就是缓存，将使用过的数据存起来，之后可能还会用到。</p>
+<p>和它容易搞混的一个概念是 <code>Buffer</code>（缓冲），缓冲用于协调上下游速度不一致的问题，例如：</p>
+<ol>
+<li>上游生产数据太快，下游消费不动，可以将数据先放到缓冲里。</li>
+<li>下游马上要消费大量数据，为此，上游可以提前生产一些到缓冲中。</li>
+</ol>
+<p>在 HTTP 中，一般会通过 <code>Cache-Control</code> Header 来控制缓存，策略主要有：</p>
+<ul>
+<li><strong>强缓存</strong>: 服务器让客户端，在一段时间内都直接使用本地的旧数据，不用来询问我。</li>
+<li><strong>协商缓存</strong>: 本地的缓存可能过期了，客户端会去询问服务器：当前的数据标识为 <code>ETage</code>，是否需要更新？如果服务器发现数据未改变，就会返回一个未改变的标志（状态码 <code>304</code>），让客户端接着使用旧数据。这样避免了内容的传输重复，提高了效率。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/" data-id="cuidR5m9KgekCDKvABd2N13Hm" data-title="HTTP的Header和Body" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          HTTP工作原理、请求方法与状态码
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2026/02/08/livedata/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">livedata</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetpack%E5%85%A8%E5%AE%B6%E6%A1%B6/" rel="tag">jetpack全家桶</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/jetpack%E5%85%A8%E5%AE%B6%E6%A1%B6/" style="font-size: 15px;">jetpack全家桶</a> <a href="/tags/kotlin/" style="font-size: 15px;">kotlin</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 15px;">网络</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 20px;">设计模式</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">January 2026</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/">HTTP工作原理、请求方法与状态码</a>
+          </li>
+        
+          <li>
+            <a href="/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/">HTTP的Header和Body</a>
+          </li>
+        
+          <li>
+            <a href="/2026/02/08/livedata/">livedata</a>
+          </li>
+        
+          <li>
+            <a href="/2026/02/08/lifecycle/">lifecycle</a>
+          </li>
+        
+          <li>
+            <a href="/2026/02/01/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/">观察者模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

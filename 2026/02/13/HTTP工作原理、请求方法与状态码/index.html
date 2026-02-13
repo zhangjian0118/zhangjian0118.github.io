@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>HTTP工作原理、请求方法与状态码 | Jian Zhang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="HTTP 的工作方式浏览器地址栏输入地址回车，浏览器发起请求到服务器，服务器拿到请求经过处理，响应对应的内容给浏览器，浏览器拿到响应，再将其通过渲染引擎（浏览器内核）渲染成可见的页面。 面对上述过程，我们可能会问：  地址是怎么转换成请求的？ 请求和响应是什么样的？  首先，请求和响应大概是这样的。 请求： 12GET &#x2F; HTTP&#x2F;1.1Host: baidu.com  响应： 12345678">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP工作原理、请求方法与状态码">
+<meta property="og:url" content="http://example.com/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/index.html">
+<meta property="og:site_name" content="Jian Zhang">
+<meta property="og:description" content="HTTP 的工作方式浏览器地址栏输入地址回车，浏览器发起请求到服务器，服务器拿到请求经过处理，响应对应的内容给浏览器，浏览器拿到响应，再将其通过渲染引擎（浏览器内核）渲染成可见的页面。 面对上述过程，我们可能会问：  地址是怎么转换成请求的？ 请求和响应是什么样的？  首先，请求和响应大概是这样的。 请求： 12GET &#x2F; HTTP&#x2F;1.1Host: baidu.com  响应： 12345678">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-02-13T08:51:14.000Z">
+<meta property="article:modified_time" content="2026-02-13T08:51:49.956Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary">
+  
+    <link rel="alternate" href="/atom.xml" title="Jian Zhang" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Jian Zhang</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">技术 · 设计模式 · 思考</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-HTTP工作原理、请求方法与状态码" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/" class="article-date">
+  <time class="dt-published" datetime="2026-02-13T08:51:14.000Z" itemprop="datePublished">2026-02-13</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      HTTP工作原理、请求方法与状态码
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="HTTP-的工作方式"><a href="#HTTP-的工作方式" class="headerlink" title="HTTP 的工作方式"></a>HTTP 的工作方式</h2><p>浏览器地址栏输入地址回车，浏览器发起请求到服务器，服务器拿到请求经过处理，响应对应的内容给浏览器，浏览器拿到响应，再将其通过渲染引擎（浏览器内核）渲染成可见的页面。</p>
+<p>面对上述过程，我们可能会问：</p>
+<ol>
+<li>地址是怎么转换成请求的？</li>
+<li>请求和响应是什么样的？</li>
+</ol>
+<p>首先，请求和响应大概是这样的。</p>
+<p>请求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET / HTTP/1.1</span><br><span class="line">Host: baidu.com</span><br></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Server: nginx/1.13.3</span><br><span class="line">Date: Sun, 01 Jul 2021 7:54:55 GMT</span><br><span class="line">Content-Type: text/html; charset=utf-8</span><br><span class="line">Transfer-Encoding: chunked</span><br><span class="line">Cache-Control: public, max-age=0</span><br><span class="line">ETag: W/&quot;4558-VULd89nkFI4Z8A/TkQk+Strh3nc</span><br><span class="line">Vary: Accept-Encoding</span><br><span class="line">Content-Encoding: gzip</span><br><span class="line"></span><br><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我们再来看看地址（URL）是怎么转换为请求（报文）的。首先这是一个示例地址：</p>
+<p>baidu<a href="https://link.juejin.cn/?target=http://example.com/users?id=1">.com&#x2F;users?id&#x3D;1</a></p>
+<p>它会被浏览器拆成三部分：</p>
+<ul>
+<li><code>http://</code>: 协议类型</li>
+<li><code>baidu``.com</code>: 服务器地址</li>
+<li><code>/users?id=1</code>: 路径（path）以及查询参数</li>
+</ul>
+<p>拆解后，会解析成这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET /users?id=1 HTTP/1.1</span><br><span class="line">Host: baidu.com</span><br></pre></td></tr></table></figure>
+
+<p>这就是 HTTP 的报文。</p>
+<p>再来以安卓开发的角度看看 HTTP 的工作方式，其实和浏览器是一样的。在安卓中，我们通过代码向服务器发送请求，服务器返回响应，我们可以在代码中拿到服务器返回的数据，比如 JSON 格式的数据。但这不是服务器返回的响应报文，而是从响应报文的消息体中取出的一部分数据，</p>
+<h2 id="请求报文和响应报文"><a href="#请求报文和响应报文" class="headerlink" title="请求报文和响应报文"></a>请求报文和响应报文</h2><h3 id="请求报文格式：Request"><a href="#请求报文格式：Request" class="headerlink" title="请求报文格式：Request"></a>请求报文格式：Request</h3><p>那报文是什么样的呢？请求报文大概长这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET /users HTTP/1.1 // 请求行</span><br><span class="line">Host: baidu.com // 首部</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>第一行是请求行，其中 <code>GET</code> 是请求方法（method），<code>/users</code> 是访问的资源路径（path），用于给服务器看的。而下面的 baidu<code>.com</code> 是给接收到请求的主机看的。<code>HTTP/1.1</code> 是 HTTP 的版本号，主要有几个大版本号，0.9、1.0、1.1、2.0，现在 1.1 是最广泛应用的，0.9、1.0 已被废弃，2.0 也已被广泛应用。</p>
+<p>第二行是首部（Header），它是键值对的形式，冒号左边是 key，右边是 value。另外 Header 可以是多行，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Host: baidu.com</span><br><span class="line">Content-Type: text/plain</span><br><span class="line">Content-Length: 213</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>请求报文还可以有 Body，它是报文内部的实质内容，也就是发送给服务器看的具体信息，比如新增用户的请求报文中，Body 部分可以是用户对象序列化后的字符串。</p>
+<blockquote>
+<p>注意：Body 不是必须的，只是请求内容的话，可以不需要。</p>
+<p>规则：path 是用来定位资源的，body 中的数据是用于给服务器处理使用的。</p>
+</blockquote>
+<h3 id="响应报文格式：Response"><a href="#响应报文格式：Response" class="headerlink" title="响应报文格式：Response"></a>响应报文格式：Response</h3><p>它的格式和请求报文很类似，也有 header 和 body。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK // 状态行</span><br><span class="line">content-type: application/json; charset=utf-8</span><br><span class="line">catch-control: public, max-age=60, s-maxage=60</span><br><span class="line">vary: Accept,Accept-Encoding</span><br><span class="line">etag: W/&quot;02eec5b334b0e4c05253d3f4138daa46&quot;</span><br><span class="line">content-encoding: gzip</span><br><span class="line">&#123;&quot;err_no&quot;: 0,&quot;err_msg&quot;: &quot;success&quot;,&quot;data&quot;: &#123;&quot;id&quot;: &quot;7534613534082072586&quot;,&quot;article_id&quot;: &quot;0&quot;,&quot;user_id&quot;: &quot;0&quot;,&quot;category_id&quot;: &quot;0&quot;,&quot;tag_ids&quot;: [],&quot;link_url&quot;: &quot;&quot;,&quot;cover_image&quot;: &quot;&quot;,&quot;is_gfw&quot;: 0,&quot;title&quot;: &quot;This is title&quot;,&quot;brief_content&quot;: &quot;&quot;,&quot;is_english&quot;: 0,&quot;is_original&quot;: 1,&quot;edit_type&quot;: 10,&quot;html_content&quot;: &quot;deprecated&quot;,&quot;mark_content&quot;: &quot;your_mark_content&quot;,&quot;ctime&quot;: &quot;-62135596800&quot;,&quot;mtime&quot;: &quot;-62135596800&quot;,&quot;status&quot;: 0,&quot;original_type&quot;: 0,&quot;theme_ids&quot;: []&#125;&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>第一行是状态行，其中 <code>200</code> 是状态码，<code>OK</code> 是状态信息，这两个是对这次响应的简单描述。状态码 200 表示请求成功，OK 作为补充的描述。</p>
+<h2 id="请求方法"><a href="#请求方法" class="headerlink" title="请求方法"></a>请求方法</h2><p>请求方法最重要也最常用的有四个： GET、POST、PUT、DELETE。</p>
+<h3 id="GET"><a href="#GET" class="headerlink" title="GET"></a>GET</h3><p>GET 用于获取资源，比如在浏览器地址栏输入 URL 并回车，此时的请求方法绝对是 GET。</p>
+<p>GET 也是 HTTP 最初版本中的唯一方法，因为那时只需从服务器中获取数据。另外，它不对服务器数据进行操作（没有提供信息给服务器进行处理），所以请求报文中<strong>绝对没有</strong> Body。</p>
+<blockquote>
+<p>如果某个 Web API 的请求中含有 Body，那么它就是不规范的。而这种不规范可能会导致程序崩溃，比如你使用 Retrofit 去请求这样的接口，程序会报错：<code>Method GET must not have a request body.</code>。</p>
+</blockquote>
+<h3 id="POST"><a href="#POST" class="headerlink" title="POST"></a>POST</h3><p>POST 用于增加或修改资源，比如新增或修改一个用户。它是一定带有 Body 的，因为要通过 Body 提供信息给服务器去处理。</p>
+<p>新增一个用户的请求报文大概长这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /users HTTP/1.1</span><br><span class="line">Host: baidu.com</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 18</span><br><span class="line"></span><br><span class="line">name=martin&amp;age=21  // &lt;= Body</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>前面提到：同一个请求可能会有多种写法。POST 请求就是一个很好的例子，其 Body 数据的格式有好几种。这和 <code>Content-Type</code> 这个请求头有关：</p>
+<ul>
+<li><code>application/x-www-form-urlencoded</code>: 表单类型，就比如 <code>name=martin&amp;age=21</code>。在 Retrofit 中对应着 <code>@FormUrlEncoded</code> 和 <code>@Field</code>。</li>
+<li><code>application/json</code>: 最常使用的，我们可以使用它来传递复杂的数据。在 Retrofit 中对应 <code>@Body</code>。</li>
+<li><code>multipart/form-data</code>: 用于上传文件，比如上传图片。在 Retrofit 中对应 <code>@Multipart</code> 和 <code>@Part</code>。</li>
+</ul>
+<p>知道了这些，你也就知道为什么同一个请求会有多种写法，并且知道该用哪种：根据后端需要的格式进行选择。</p>
+<h3 id="PUT"><a href="#PUT" class="headerlink" title="PUT"></a>PUT</h3><p>PUT 用于修改资源，也具有 Body。它和 POST 都可用于修改资源，在实际中选哪个都行。</p>
+<p>另外，PUT 和 POST 有个区别，PUT 是<a href="https://link.juejin.cn/?target=https://zh.wikipedia.org/wiki/%25E5%2586%25AA%25E7%25AD%2589">幂等</a>的，而 POST 是不具有幂等性的。PUT 多次修改用户，结果都是一样的，用户的信息被修改了。而 POST 多次新增用户，结果不一样，并不是只新增了一个用户，而是新增了多个用户。</p>
+<p>GET 也是幂等的，因为它并没有对数据进行修改。</p>
+<p>修改用户的请求报文大概长这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PUT /users/1 HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 9</span><br><span class="line"></span><br><span class="line">name=jack</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="DELETE"><a href="#DELETE" class="headerlink" title="DELETE"></a>DELETE</h3><p>DELETE 用于删除资源，也是没有 Body。因为删除资源只需定位到对应资源，然后删除即可。</p>
+<p>删除一个用户的请求报文大概长这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DELETE /users/1 HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>DELETE 是幂等的，因为不管多少次，结果都是删除一个用户。</p>
+<h3 id="HEAD"><a href="#HEAD" class="headerlink" title="HEAD"></a>HEAD</h3><p>HEAD 是特殊的请求方法，它的使用和 GET 完全相同，只不过它的<strong>响应报文</strong>没有 Body。</p>
+<p>它的用处不是为了获取资源，而是用于获取信息。比如，在真正下载之前，你可以把请求改为 HEAD，因为响应中没有 Body，你可以很快拿到响应。然后从 Header 中得到资源的信息，进一步判断该怎么进行下载。</p>
+<h2 id="状态码"><a href="#状态码" class="headerlink" title="状态码"></a>状态码</h2><p>状态码是用于对响应结果做出简单的类型化描述，如 200 表示获取成功、404 表示内容未找到。</p>
+<p>状态码可被归为以下五类：</p>
+<ul>
+<li><code>1xx</code>: 临时性消息。<ul>
+<li><code>101</code> 表示 HTTP 协议切换。用于判断一个服务器是否支持 HTTP 2.0 协议。浏览器会先发送一条 HTTP 1.1协议的请求，并加上 <code>Upgrade: h2</code>，如果服务器支持，响应的状态码会是 101，这样以后浏览器就可以发送 HTTP 2.0 协议的请求了；不支持的话，服务器会忽略这个请求头，响应的状态码是 200，这样浏览器就应该发送 HTTP 1.1 协议的请求。</li>
+<li><code>100</code> 表示继续发送。有时客户端要发送的请求体（Body）会比较大，这时请求头要加上 <code>100-continue</code>，表示我的请求内容还没发完，服务器就会响应 100 的状态码，表示我知道了，<strong>请你继续发</strong>吧。</li>
+</ul>
+</li>
+<li><code>2xx</code>: 成功。<ul>
+<li>如 <code>200</code> 表示请求成功。</li>
+<li><code>201</code> 表示创建成功。</li>
+</ul>
+</li>
+<li><code>3xx</code>: 重定向。<ul>
+<li>比如你输入 http 开头的网址，然后回车，会发现竟然跳转到了 https 开头的网址。这是因为浏览器请求了你最开始输入的网站，发现响应的状态码是** <strong><strong>301</strong></strong>（表示资源永久迁移了）**，这时，浏览器会再次请求响应头中 Location 所指向的网址。</li>
+<li>另外，<strong>302</strong>** 表示临时迁移**。</li>
+</ul>
+</li>
+<li><code>4xx</code>: 客户端（浏览器或是应用）错误，也就是请求有问题。<ul>
+<li>如请求了不存在的资源，状态码会是 <code>404</code>；</li>
+<li>请求了未授权的资源，状态码会是 <code>401</code>。</li>
+</ul>
+</li>
+<li><code>5xx</code>: 服务器错误。<ul>
+<li>如服务器宕机了、服务器连接数据库失败，返回的响应码可能是 <code>500</code>、<code>502</code>。</li>
+</ul>
+</li>
+</ul>
+<p>其中最重要的就是 2xx 和 4xx，你只需记住状态码的类型，而不应该去记某一个具体的状态码。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/" data-id="cuidFcgDDEoafzjlcHAKABkZt" data-title="HTTP工作原理、请求方法与状态码" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">HTTP的Header和Body</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetpack%E5%85%A8%E5%AE%B6%E6%A1%B6/" rel="tag">jetpack全家桶</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/jetpack%E5%85%A8%E5%AE%B6%E6%A1%B6/" style="font-size: 15px;">jetpack全家桶</a> <a href="/tags/kotlin/" style="font-size: 15px;">kotlin</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 15px;">网络</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 20px;">设计模式</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">January 2026</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/">HTTP工作原理、请求方法与状态码</a>
+          </li>
+        
+          <li>
+            <a href="/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/">HTTP的Header和Body</a>
+          </li>
+        
+          <li>
+            <a href="/2026/02/08/livedata/">livedata</a>
+          </li>
+        
+          <li>
+            <a href="/2026/02/08/lifecycle/">lifecycle</a>
+          </li>
+        
+          <li>
+            <a href="/2026/02/01/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/">观察者模式</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

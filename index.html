@@ -77,6 +77,304 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-HTTP工作原理、请求方法与状态码" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/" class="article-date">
+  <time class="dt-published" datetime="2026-02-13T08:51:14.000Z" itemprop="datePublished">2026-02-13</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/">HTTP工作原理、请求方法与状态码</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="HTTP-的工作方式"><a href="#HTTP-的工作方式" class="headerlink" title="HTTP 的工作方式"></a>HTTP 的工作方式</h2><p>浏览器地址栏输入地址回车，浏览器发起请求到服务器，服务器拿到请求经过处理，响应对应的内容给浏览器，浏览器拿到响应，再将其通过渲染引擎（浏览器内核）渲染成可见的页面。</p>
+<p>面对上述过程，我们可能会问：</p>
+<ol>
+<li>地址是怎么转换成请求的？</li>
+<li>请求和响应是什么样的？</li>
+</ol>
+<p>首先，请求和响应大概是这样的。</p>
+<p>请求：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET / HTTP/1.1</span><br><span class="line">Host: baidu.com</span><br></pre></td></tr></table></figure>
+
+<p>响应：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Server: nginx/1.13.3</span><br><span class="line">Date: Sun, 01 Jul 2021 7:54:55 GMT</span><br><span class="line">Content-Type: text/html; charset=utf-8</span><br><span class="line">Transfer-Encoding: chunked</span><br><span class="line">Cache-Control: public, max-age=0</span><br><span class="line">ETag: W/&quot;4558-VULd89nkFI4Z8A/TkQk+Strh3nc</span><br><span class="line">Vary: Accept-Encoding</span><br><span class="line">Content-Encoding: gzip</span><br><span class="line"></span><br><span class="line">&lt;!DOCTYPE html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我们再来看看地址（URL）是怎么转换为请求（报文）的。首先这是一个示例地址：</p>
+<p>baidu<a href="https://link.juejin.cn/?target=http://example.com/users?id=1">.com&#x2F;users?id&#x3D;1</a></p>
+<p>它会被浏览器拆成三部分：</p>
+<ul>
+<li><code>http://</code>: 协议类型</li>
+<li><code>baidu``.com</code>: 服务器地址</li>
+<li><code>/users?id=1</code>: 路径（path）以及查询参数</li>
+</ul>
+<p>拆解后，会解析成这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET /users?id=1 HTTP/1.1</span><br><span class="line">Host: baidu.com</span><br></pre></td></tr></table></figure>
+
+<p>这就是 HTTP 的报文。</p>
+<p>再来以安卓开发的角度看看 HTTP 的工作方式，其实和浏览器是一样的。在安卓中，我们通过代码向服务器发送请求，服务器返回响应，我们可以在代码中拿到服务器返回的数据，比如 JSON 格式的数据。但这不是服务器返回的响应报文，而是从响应报文的消息体中取出的一部分数据，</p>
+<h2 id="请求报文和响应报文"><a href="#请求报文和响应报文" class="headerlink" title="请求报文和响应报文"></a>请求报文和响应报文</h2><h3 id="请求报文格式：Request"><a href="#请求报文格式：Request" class="headerlink" title="请求报文格式：Request"></a>请求报文格式：Request</h3><p>那报文是什么样的呢？请求报文大概长这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET /users HTTP/1.1 // 请求行</span><br><span class="line">Host: baidu.com // 首部</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>第一行是请求行，其中 <code>GET</code> 是请求方法（method），<code>/users</code> 是访问的资源路径（path），用于给服务器看的。而下面的 baidu<code>.com</code> 是给接收到请求的主机看的。<code>HTTP/1.1</code> 是 HTTP 的版本号，主要有几个大版本号，0.9、1.0、1.1、2.0，现在 1.1 是最广泛应用的，0.9、1.0 已被废弃，2.0 也已被广泛应用。</p>
+<p>第二行是首部（Header），它是键值对的形式，冒号左边是 key，右边是 value。另外 Header 可以是多行，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Host: baidu.com</span><br><span class="line">Content-Type: text/plain</span><br><span class="line">Content-Length: 213</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>请求报文还可以有 Body，它是报文内部的实质内容，也就是发送给服务器看的具体信息，比如新增用户的请求报文中，Body 部分可以是用户对象序列化后的字符串。</p>
+<blockquote>
+<p>注意：Body 不是必须的，只是请求内容的话，可以不需要。</p>
+<p>规则：path 是用来定位资源的，body 中的数据是用于给服务器处理使用的。</p>
+</blockquote>
+<h3 id="响应报文格式：Response"><a href="#响应报文格式：Response" class="headerlink" title="响应报文格式：Response"></a>响应报文格式：Response</h3><p>它的格式和请求报文很类似，也有 header 和 body。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK // 状态行</span><br><span class="line">content-type: application/json; charset=utf-8</span><br><span class="line">catch-control: public, max-age=60, s-maxage=60</span><br><span class="line">vary: Accept,Accept-Encoding</span><br><span class="line">etag: W/&quot;02eec5b334b0e4c05253d3f4138daa46&quot;</span><br><span class="line">content-encoding: gzip</span><br><span class="line">&#123;&quot;err_no&quot;: 0,&quot;err_msg&quot;: &quot;success&quot;,&quot;data&quot;: &#123;&quot;id&quot;: &quot;7534613534082072586&quot;,&quot;article_id&quot;: &quot;0&quot;,&quot;user_id&quot;: &quot;0&quot;,&quot;category_id&quot;: &quot;0&quot;,&quot;tag_ids&quot;: [],&quot;link_url&quot;: &quot;&quot;,&quot;cover_image&quot;: &quot;&quot;,&quot;is_gfw&quot;: 0,&quot;title&quot;: &quot;This is title&quot;,&quot;brief_content&quot;: &quot;&quot;,&quot;is_english&quot;: 0,&quot;is_original&quot;: 1,&quot;edit_type&quot;: 10,&quot;html_content&quot;: &quot;deprecated&quot;,&quot;mark_content&quot;: &quot;your_mark_content&quot;,&quot;ctime&quot;: &quot;-62135596800&quot;,&quot;mtime&quot;: &quot;-62135596800&quot;,&quot;status&quot;: 0,&quot;original_type&quot;: 0,&quot;theme_ids&quot;: []&#125;&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>第一行是状态行，其中 <code>200</code> 是状态码，<code>OK</code> 是状态信息，这两个是对这次响应的简单描述。状态码 200 表示请求成功，OK 作为补充的描述。</p>
+<h2 id="请求方法"><a href="#请求方法" class="headerlink" title="请求方法"></a>请求方法</h2><p>请求方法最重要也最常用的有四个： GET、POST、PUT、DELETE。</p>
+<h3 id="GET"><a href="#GET" class="headerlink" title="GET"></a>GET</h3><p>GET 用于获取资源，比如在浏览器地址栏输入 URL 并回车，此时的请求方法绝对是 GET。</p>
+<p>GET 也是 HTTP 最初版本中的唯一方法，因为那时只需从服务器中获取数据。另外，它不对服务器数据进行操作（没有提供信息给服务器进行处理），所以请求报文中<strong>绝对没有</strong> Body。</p>
+<blockquote>
+<p>如果某个 Web API 的请求中含有 Body，那么它就是不规范的。而这种不规范可能会导致程序崩溃，比如你使用 Retrofit 去请求这样的接口，程序会报错：<code>Method GET must not have a request body.</code>。</p>
+</blockquote>
+<h3 id="POST"><a href="#POST" class="headerlink" title="POST"></a>POST</h3><p>POST 用于增加或修改资源，比如新增或修改一个用户。它是一定带有 Body 的，因为要通过 Body 提供信息给服务器去处理。</p>
+<p>新增一个用户的请求报文大概长这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /users HTTP/1.1</span><br><span class="line">Host: baidu.com</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 18</span><br><span class="line"></span><br><span class="line">name=martin&amp;age=21  // &lt;= Body</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>前面提到：同一个请求可能会有多种写法。POST 请求就是一个很好的例子，其 Body 数据的格式有好几种。这和 <code>Content-Type</code> 这个请求头有关：</p>
+<ul>
+<li><code>application/x-www-form-urlencoded</code>: 表单类型，就比如 <code>name=martin&amp;age=21</code>。在 Retrofit 中对应着 <code>@FormUrlEncoded</code> 和 <code>@Field</code>。</li>
+<li><code>application/json</code>: 最常使用的，我们可以使用它来传递复杂的数据。在 Retrofit 中对应 <code>@Body</code>。</li>
+<li><code>multipart/form-data</code>: 用于上传文件，比如上传图片。在 Retrofit 中对应 <code>@Multipart</code> 和 <code>@Part</code>。</li>
+</ul>
+<p>知道了这些，你也就知道为什么同一个请求会有多种写法，并且知道该用哪种：根据后端需要的格式进行选择。</p>
+<h3 id="PUT"><a href="#PUT" class="headerlink" title="PUT"></a>PUT</h3><p>PUT 用于修改资源，也具有 Body。它和 POST 都可用于修改资源，在实际中选哪个都行。</p>
+<p>另外，PUT 和 POST 有个区别，PUT 是<a href="https://link.juejin.cn/?target=https://zh.wikipedia.org/wiki/%25E5%2586%25AA%25E7%25AD%2589">幂等</a>的，而 POST 是不具有幂等性的。PUT 多次修改用户，结果都是一样的，用户的信息被修改了。而 POST 多次新增用户，结果不一样，并不是只新增了一个用户，而是新增了多个用户。</p>
+<p>GET 也是幂等的，因为它并没有对数据进行修改。</p>
+<p>修改用户的请求报文大概长这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PUT /users/1 HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 9</span><br><span class="line"></span><br><span class="line">name=jack</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="DELETE"><a href="#DELETE" class="headerlink" title="DELETE"></a>DELETE</h3><p>DELETE 用于删除资源，也是没有 Body。因为删除资源只需定位到对应资源，然后删除即可。</p>
+<p>删除一个用户的请求报文大概长这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DELETE /users/1 HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>DELETE 是幂等的，因为不管多少次，结果都是删除一个用户。</p>
+<h3 id="HEAD"><a href="#HEAD" class="headerlink" title="HEAD"></a>HEAD</h3><p>HEAD 是特殊的请求方法，它的使用和 GET 完全相同，只不过它的<strong>响应报文</strong>没有 Body。</p>
+<p>它的用处不是为了获取资源，而是用于获取信息。比如，在真正下载之前，你可以把请求改为 HEAD，因为响应中没有 Body，你可以很快拿到响应。然后从 Header 中得到资源的信息，进一步判断该怎么进行下载。</p>
+<h2 id="状态码"><a href="#状态码" class="headerlink" title="状态码"></a>状态码</h2><p>状态码是用于对响应结果做出简单的类型化描述，如 200 表示获取成功、404 表示内容未找到。</p>
+<p>状态码可被归为以下五类：</p>
+<ul>
+<li><code>1xx</code>: 临时性消息。<ul>
+<li><code>101</code> 表示 HTTP 协议切换。用于判断一个服务器是否支持 HTTP 2.0 协议。浏览器会先发送一条 HTTP 1.1协议的请求，并加上 <code>Upgrade: h2</code>，如果服务器支持，响应的状态码会是 101，这样以后浏览器就可以发送 HTTP 2.0 协议的请求了；不支持的话，服务器会忽略这个请求头，响应的状态码是 200，这样浏览器就应该发送 HTTP 1.1 协议的请求。</li>
+<li><code>100</code> 表示继续发送。有时客户端要发送的请求体（Body）会比较大，这时请求头要加上 <code>100-continue</code>，表示我的请求内容还没发完，服务器就会响应 100 的状态码，表示我知道了，<strong>请你继续发</strong>吧。</li>
+</ul>
+</li>
+<li><code>2xx</code>: 成功。<ul>
+<li>如 <code>200</code> 表示请求成功。</li>
+<li><code>201</code> 表示创建成功。</li>
+</ul>
+</li>
+<li><code>3xx</code>: 重定向。<ul>
+<li>比如你输入 http 开头的网址，然后回车，会发现竟然跳转到了 https 开头的网址。这是因为浏览器请求了你最开始输入的网站，发现响应的状态码是** <strong><strong>301</strong></strong>（表示资源永久迁移了）**，这时，浏览器会再次请求响应头中 Location 所指向的网址。</li>
+<li>另外，<strong>302</strong>** 表示临时迁移**。</li>
+</ul>
+</li>
+<li><code>4xx</code>: 客户端（浏览器或是应用）错误，也就是请求有问题。<ul>
+<li>如请求了不存在的资源，状态码会是 <code>404</code>；</li>
+<li>请求了未授权的资源，状态码会是 <code>401</code>。</li>
+</ul>
+</li>
+<li><code>5xx</code>: 服务器错误。<ul>
+<li>如服务器宕机了、服务器连接数据库失败，返回的响应码可能是 <code>500</code>、<code>502</code>。</li>
+</ul>
+</li>
+</ul>
+<p>其中最重要的就是 2xx 和 4xx，你只需记住状态码的类型，而不应该去记某一个具体的状态码。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/" data-id="cuidFcgDDEoafzjlcHAKABkZt" data-title="HTTP工作原理、请求方法与状态码" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
+    <article id="post-HTTP的Header和Body" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/" class="article-date">
+  <time class="dt-published" datetime="2026-02-13T08:47:37.000Z" itemprop="datePublished">2026-02-13</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/">HTTP的Header和Body</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="Header"><a href="#Header" class="headerlink" title="Header"></a>Header</h2><p>Header 是 HTTP 请求和响应消息中，用于传递附加信息的部分（也就是“元数据”，即描述数据的数据），比如 Content-Type（内容类型）、Content-Length（内容大小）、Content-Encoding（指定的压缩算法）。</p>
+<p>我们来看看具体的例子。</p>
+<h3 id="Host"><a href="#Host" class="headerlink" title="Host"></a>Host</h3><p><a href="https://link.juejin.cn/?target=https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Reference/Headers/Host">Host</a> 用于指定目标服务器的主机地址。比如有这么一个请求报文：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET /article/1 HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>其中 <code>example.com</code> 指向了目标主机。</p>
+<p>这里需要注意，在请求发起之前，浏览器会先从 URL（如 <code>https://example.com</code>）中提取出域名 <code>example.com</code>，然后通过 DNS（Domain Name System）查询它对应的 IP 地址。得到 IP 地址后，浏览器才会往这个 IP 地址发送 HTTP 请求，而这个请求的 Header 中就包含了 <code>Host</code>。</p>
+<p>所以 <code>Host</code> Header 并不是用来查找 IP 地址的，那么它的作用是什么？</p>
+<p>其实 <code>Host</code> 是用于让服务器进行判断的。因为一台服务器上可能会运行多个网站（虚拟主机），服务器需要通过 <code>Host</code> 知道当前请求要访问哪个网站。</p>
+<p>简单来说，域名 <code>example.com</code> 有两个作用：</p>
+<ol>
+<li>在请求发起前，通过 DNS 查找到目标主机的 IP 地址。</li>
+<li>在请求到达后，作为 <code>Host</code> Header 的值，让目标主机能够定位到具体的子网站。</li>
+</ol>
+<h3 id="Content-Type-Content-Length"><a href="#Content-Type-Content-Length" class="headerlink" title="Content-Type&#x2F;Content-Length"></a>Content-Type&#x2F;Content-Length</h3><p>Content-Type&#x2F;Content-Length 这两个 Header 分别表示 Body 的类型和长度。</p>
+<h4 id="Content-Length"><a href="#Content-Length" class="headerlink" title="Content-Length"></a>Content-Length</h4><p>Content-Length 就是 Body 内容的字节数。例如下面这个报文：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST /users/1 HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line">Content-Length: 21</span><br><span class="line"></span><br><span class="line">name=rain&amp;gender=male</span><br></pre></td></tr></table></figure>
+
+<p>其 Body 部分（<code>name=rain&amp;gender=male</code>）共有 21 个字节，所以 <code>Content-Length</code> 的值就是 21。</p>
+<p>为什么需要提前指定长度，不能让接收方自己计算吗？</p>
+<p>因为 Body 部分可能是二进制数据（如图片、音频）。而二进制数据的内容中，可能包含任意的字节值。这时，我们<strong>无法指定一个固定的符号</strong>来作为 Body 的结束符，因为任何结束符都可能会在二进制数据中提前出现。所以为了避免数据被意外截断，最简单的解决方法就是在发送前，通过 <code>Content-Length</code> 指定总长度。</p>
+<h4 id="Content-Type"><a href="#Content-Type" class="headerlink" title="Content-Type"></a>Content-Type</h4><p>Content-Type 分好几种，常用的有：</p>
+<ul>
+<li><code>text/html</code>: HTML 页面，用于给浏览器渲染界面。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: text/html; charset=utf-8</span><br><span class="line">Content-Length: 130488</span><br><span class="line"></span><br><span class="line">&lt;!doctype html&gt;</span><br><span class="line">&lt;html&gt;</span><br><span class="line">&lt;head&gt;</span><br><span class="line">    &lt;title&gt;这是标题&lt;/title&gt;</span><br><span class="line">    &lt;meta charset=&quot;utf-8&quot;&gt;</span><br><span class="line">...</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>application/x-www-form-urlencoded</code>: 普通表单，它的格式和 URL 参数的格式相同，以<code>key=value</code>的形式来存储纯文本。</li>
+</ul>
+<p>只有纯文本的表单才叫普通表单，最常见的就是登录界面：</p>
+<img src="/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/login.png" class="">
+
+<p>点击登录时，请求的 <code>Content-Type</code> 就是 <code>application/x-www-form-urlencoded</code>。服务器从 Body 中取出的信息就是 <code>username=...&amp;password=...</code>，中间使用<code>&amp;</code>进行分隔。</p>
+<p>如果想要在 Android 中用 Retrofit 提交普通表单，你可以这样写：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@FormUrlEncoded</span><br><span class="line">@POST(&quot;user/login&quot;)</span><br><span class="line">suspend fun login(@Field(&quot;username&quot;) username: String, @Field(&quot;password&quot;) password: String)</span><br></pre></td></tr></table></figure>
+
+<p>上面代码构建的请求报文，会是下面这样的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">POST /user/login HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line">Content-Type: application/x-www-form-urlencoded</span><br><span class="line">Content-Length: 30</span><br><span class="line"></span><br><span class="line">username=admin&amp;password=123456</span><br></pre></td></tr></table></figure>
+
+<p>所以 Retrofit 中的 <code>@FormUrlEncoded</code> 和 <code>@Field</code> 注解是用于发送这种普通表单请求的。</p>
+<ul>
+<li><code>multipart/form-data</code>: 这也是一种表单，叫做多部分表单。它相较于普通表单，除了可以提交文字外，还可以提交文件等二进制数据。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">POST /users HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line">Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW</span><br><span class="line">Content-Length: 149056</span><br><span class="line"></span><br><span class="line">----WebKitFormBoundary7MA4YWxkTrZu0gW</span><br><span class="line">Content-Disposition:form-data; name=&quot;name&quot;</span><br><span class="line"></span><br><span class="line">jack</span><br><span class="line">----WebKitFormBoundary7MA4YWxkTrZu0gW</span><br><span class="line">Content-Disposition:form-data; name=&quot;avatar&quot;; filename=&quot;my_avatar.jpg&quot;</span><br><span class="line">Content-Type: image/jpeg</span><br><span class="line"></span><br><span class="line">4AAQSkZJRgABAQEASABIAAD...</span><br><span class="line">----WebKitFormBoundary7MA4YWxkTrZu0gW</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>可以看到，它多出了一个 <code>boundary</code>，用来分隔 Body 中的不同部分。</p>
+<p>为什么需要专门分隔呢？</p>
+<p>其实普通表单也需要分隔，只不过分隔符为 <code>&amp;</code>。但如果要提交二进制文件，就不能使用简单、固定的符号来分隔了，因为文件的内容中可能包含这个符号，这样会导致解析错误。所以，需要一个独特的、不容易重复的随机字符串来做分隔符，也就是上述的 <code>boundary</code>。</p>
+<blockquote>
+<p>当然，文件的二进制内容中也可能会出现 boundary，只不过这个概率非常低，可以忽略。就算真遇到了，也只需重发一次请求就行。</p>
+</blockquote>
+<p>如果想要使用 Retrofit 提交这种表单，你可以这样写：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@Multipart</span><br><span class="line">@PUT(&quot;user/avatar&quot;)</span><br><span class="line">suspend fun updateUserAvatar(@Part(&quot;avatar&quot;) avatar: RequestBody): User</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>用这种方式来上传图片等文件，是目前最主流的做法。</p>
+<ul>
+<li><code>application/json</code>: 用 JSON 格式传递数据，在现在 Api 的请求或响应中非常常见。请求用户信息：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 请求报文</span><br><span class="line">POST /users HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line">Content-Type: application/json; charset=utf-8</span><br><span class="line">Content-Length: 26</span><br><span class="line"></span><br><span class="line">&#123;&quot;name&quot;:&quot;jack&quot;,&quot;age&quot;:&quot;21&quot;&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 响应报文</span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">content-type: application/json; charset=utf-8</span><br><span class="line">content-length: 157</span><br><span class="line"></span><br><span class="line">&#123;&quot;name&quot;: &quot;Simon&quot;, &quot;age&quot;: 2, ...&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>它和 <code>application/x-www-form-urlencoded</code> 都可以提交文本数据，实际开发中具体用哪个，应该看后端接口的要求。</p>
+<p>用 Retrofit 提交 JSON 数据，代码可以这样写：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@POST(&quot;user/new&quot;)</span><br><span class="line">suspend fun createUser(@Body user: User): User</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>image/jpeg/application/zip ...</code>: 单文件类型，直接将 Body 内容当做一个文件进行传输。</li>
+</ul>
+<p>平时下载图片，收到的响应几乎都是这种格式。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">content-type: image/jpeg</span><br><span class="line">content-length: 13204</span><br><span class="line"></span><br><span class="line">hkSfsD89...</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>而上传单个文件也可以使用这种格式。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">POST /user/1/avatar HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line">Content-Type: image/jpeg</span><br><span class="line">Content-Length: 13204</span><br><span class="line"></span><br><span class="line">hkSfsD89...</span><br></pre></td></tr></table></figure>
+
+<p>有了这个，对于上传单个文件的情况，我们就可以使用这种方式了，这种方式比 <code>multipart/form-data</code> 更直接。</p>
+<p>使用 Retrofit，代码可以这样写</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@POST(&quot;user/&#123;id&#125;/avatar&quot;)</span><br><span class="line">suspend fun updateAvatar(@Path(&quot;id&quot;) id: String,@Body avatar: RequestBody): User </span><br><span class="line"></span><br><span class="line">// 调用该方法前，创建一个 RequestBody 对象</span><br><span class="line">val avatarBody = avatarFile.asRequestBody(&quot;image/jpeg&quot;.toMediaTypeOrNull())</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="Chunked-Transfer-Encoding"><a href="#Chunked-Transfer-Encoding" class="headerlink" title="Chunked Transfer Encoding"></a>Chunked Transfer Encoding</h3><p>再来看看 <code>Chunked Transfer Encoding</code>（分块传输编码），它用于将内容分成多个块进行传输。比如当服务器需要耗费很长时间来准备完整的响应数据时，就可以将已经准备好的一部分数据发给客户端，后续的数据等到准备好后再补发。</p>
+<p>这时有个问题：因为数据并未完全准备好，服务器不知道内容的总长度（<code>Content-Length</code>）是多少。为此，就出现了分块传输。</p>
+<p>当响应头中出现 <code>Transfer-Encoding: chunked</code> 时，表示当前为分块传输，此时不再有 <code>Content-Length</code>。</p>
+<p>客户端会按照一定格式来接收数据，收到长度为 0 的块时，表示此次传输结束。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// Body</span><br><span class="line">&lt;length 1&gt;</span><br><span class="line">&lt;data 1&gt;</span><br><span class="line">&lt;length 2&gt;</span><br><span class="line">&lt;data 2&gt;</span><br><span class="line">...</span><br><span class="line">0    // 0 表示内容结束</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这样做可以提高服务器的响应速度。</p>
+<h3 id="Location"><a href="#Location" class="headerlink" title="Location"></a>Location</h3><p><code>Location</code> 用来做重定向的，指定一个要跳转的目标 URL。</p>
+<p>比如访问 <code>http://example.com</code> 会自动跳转到 <code>https://example.com</code>，这就是 <code>Location</code> 的作用。</p>
+<p>这个过程是：当访问 <code>http://example.com</code> 时，服务器返回的状态码是 <code>3xx</code>。这时，浏览器会向响应报文中 <code>Location</code> Header 所指向的 URL（如 <code>https://example.com</code>）再次发起请求。</p>
+<p>这个过程，对于浏览器来说是自动的。我们在代码中向 <code>http://example.com</code> 网址发起请求，也会发生这个过程。这是因为 OkHttp 会自动处理重定向，所以我们通常能够直接拿到最终的网页数据。</p>
+<h3 id="User-Agent"><a href="#User-Agent" class="headerlink" title="User-Agent"></a>User-Agent</h3><p><code>User-Agent</code> 是用户代理，就是用于表明客户端的身份的，比如使用的浏览器、使用的操作系统、使用的应用。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">user-agent</span><br><span class="line">Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36</span><br></pre></td></tr></table></figure>
+
+<p>服务器可以通过 <code>User-Agent</code> 来判断客户端的类型，然后返回不同的内容，比如给手机返回移动端网页。</p>
+<h3 id="Range-Accept-Range"><a href="#Range-Accept-Range" class="headerlink" title="Range&#x2F;Accept Range"></a>Range&#x2F;Accept Range</h3><p><code>Range/Accept Range</code> 用于指定请求内容的范围。</p>
+<p>如果响应报文的 Header 中存在 <code>Accept-Ranges: bytes</code>，说明它<strong>支持分段下载</strong>。这时，我们就可以在请求头中加上 <code>Range: bytes=0-1024</code>，表示此次请求只需获取第 0 到 1024 个字节的内容。如果请求的是一张图片，那么这种图片就只会一部分。</p>
+<p>分段加载是实现<strong>断点续传</strong>和<strong>多线程下载</strong>的核心技术。</p>
+<p>另外，在使用分段加载时，响应头通常会带有 <code>Content-Range: bytes 0-1024/4096</code>，用于提示客户端当前返回的分段以及内容的总大小。</p>
+<h2 id="其他-Header"><a href="#其他-Header" class="headerlink" title="其他 Header"></a>其他 Header</h2><ul>
+<li><code>Accept</code>: 告诉服务器，客户端能接受的数据类型，如 <code>application/json</code>。</li>
+<li><code>Accept-Charset</code>: 告诉服务器，客户端能接受的字符集，如 <code>utf-8</code>。</li>
+<li><code>Accept-Encoding</code>: 告诉服务器，客户端支持的压缩类型，如 <code>gzip</code>。</li>
+<li><code>Content-Encoding</code>: 服务器告诉客户端，实际使用的压缩类型，如 <code>gzip</code>。</li>
+</ul>
+<h2 id="Cache"><a href="#Cache" class="headerlink" title="Cache"></a>Cache</h2><p><code>Cache</code> 就是缓存，将使用过的数据存起来，之后可能还会用到。</p>
+<p>和它容易搞混的一个概念是 <code>Buffer</code>（缓冲），缓冲用于协调上下游速度不一致的问题，例如：</p>
+<ol>
+<li>上游生产数据太快，下游消费不动，可以将数据先放到缓冲里。</li>
+<li>下游马上要消费大量数据，为此，上游可以提前生产一些到缓冲中。</li>
+</ol>
+<p>在 HTTP 中，一般会通过 <code>Cache-Control</code> Header 来控制缓存，策略主要有：</p>
+<ul>
+<li><strong>强缓存</strong>: 服务器让客户端，在一段时间内都直接使用本地的旧数据，不用来询问我。</li>
+<li><strong>协商缓存</strong>: 本地的缓存可能过期了，客户端会去询问服务器：当前的数据标识为 <code>ETage</code>，是否需要更新？如果服务器发现数据未改变，就会返回一个未改变的标志（状态码 <code>304</code>），让客户端接着使用旧数据。这样避免了内容的传输重复，提高了效率。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/" data-id="cuidR5m9KgekCDKvABd2N13Hm" data-title="HTTP的Header和Body" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-livedata" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2026/02/08/livedata/" class="article-date">
@@ -790,112 +1088,6 @@
 
 
   
-    <article id="post-抽象工厂设计模式" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/24/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="article-date">
-  <time class="dt-published" datetime="2026-01-24T14:51:03.000Z" itemprop="datePublished">2026-01-24</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/24/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">抽象工厂设计模式</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="动机"><a href="#动机" class="headerlink" title="动机"></a>动机</h2><ul>
-<li>在软件系统中经常面临着“一系列互相依赖的对象”的创建工作；同时，由于需求的变化，往往存在更多系列对象的创建工作。</li>
-<li>如何应对这种变化？如何绕过常规的对象创建方法（new），提供一种“ 封装机制”来避免客户程序和这种“多系列具体对象创建工作”的紧耦合？</li>
-</ul>
-<h2 id="模式定义"><a href="#模式定义" class="headerlink" title="模式定义"></a>模式定义</h2><p>提供一个接口，让该接口负责创建一系列“相关或者相互依赖的对象”，无需指定他们具体的类</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><img src="/2026/01/24/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/abstrct_factory.png" class="">
-
-<h2 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h2><p>使用设计模式前代码：</p>
-<p>版本一</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">EmployeeDAO</span>&#123;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">vector&lt;EmployeeDO&gt; <span class="title">GetEmployees</span><span class="params">()</span></span>&#123;</span><br><span class="line">        SqlConnection* connection =</span><br><span class="line">            <span class="keyword">new</span> <span class="built_in">SqlConnection</span>();</span><br><span class="line">        connection-&gt;ConnectionString = <span class="string">&quot;...&quot;</span>;</span><br><span class="line"></span><br><span class="line">        SqlCommand* command =</span><br><span class="line">            <span class="keyword">new</span> <span class="built_in">SqlCommand</span>();</span><br><span class="line">        command-&gt;CommandText=<span class="string">&quot;...&quot;</span>;</span><br><span class="line">        command-&gt;<span class="built_in">SetConnection</span>(connection);</span><br><span class="line"></span><br><span class="line">        SqlDataReader* reader = command-&gt;<span class="built_in">ExecuteReader</span>();</span><br><span class="line">        <span class="keyword">while</span> (reader-&gt;<span class="built_in">Read</span>())&#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>版本二</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//数据库访问有关的基类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">IDBConnection</span>&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">IDBConnectionFactory</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDBConnection* <span class="title">CreateDBConnection</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">IDBCommand</span>&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">IDBCommandFactory</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDBCommand* <span class="title">CreateDBCommand</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">IDataReader</span>&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">IDataReaderFactory</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDataReader* <span class="title">CreateDataReader</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//支持SQL Server</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SqlConnection</span>: <span class="keyword">public</span> IDBConnection&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SqlConnectionFactory</span>:<span class="keyword">public</span> IDBConnectionFactory&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SqlCommand</span>: <span class="keyword">public</span> IDBCommand&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SqlCommandFactory</span>:<span class="keyword">public</span> IDBCommandFactory&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SqlDataReader</span>: <span class="keyword">public</span> IDataReader&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SqlDataReaderFactory</span>:<span class="keyword">public</span> IDataReaderFactory&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//支持Oracle</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OracleConnection</span>: <span class="keyword">public</span> IDBConnection&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OracleCommand</span>: <span class="keyword">public</span> IDBCommand&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OracleDataReader</span>: <span class="keyword">public</span> IDataReader&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EmployeeDAO</span>&#123;</span><br><span class="line">    IDBConnectionFactory* dbConnectionFactory;</span><br><span class="line">    IDBCommandFactory* dbCommandFactory;</span><br><span class="line">    IDataReaderFactory* dataReaderFactory;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">vector&lt;EmployeeDO&gt; <span class="title">GetEmployees</span><span class="params">()</span></span>&#123;</span><br><span class="line">        IDBConnection* connection =</span><br><span class="line">            dbConnectionFactory-&gt;<span class="built_in">CreateDBConnection</span>();</span><br><span class="line">        connection-&gt;<span class="built_in">ConnectionString</span>(<span class="string">&quot;...&quot;</span>);</span><br><span class="line"></span><br><span class="line">        IDBCommand* command =</span><br><span class="line">            dbCommandFactory-&gt;<span class="built_in">CreateDBCommand</span>();</span><br><span class="line">        command-&gt;<span class="built_in">CommandText</span>(<span class="string">&quot;...&quot;</span>);</span><br><span class="line">        command-&gt;<span class="built_in">SetConnection</span>(connection); <span class="comment">//关联性</span></span><br><span class="line"></span><br><span class="line">        IDBDataReader* reader = command-&gt;<span class="built_in">ExecuteReader</span>(); <span class="comment">//关联性</span></span><br><span class="line">        <span class="keyword">while</span> (reader-&gt;<span class="built_in">Read</span>())&#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>使用抽象工厂模式</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//数据库访问有关的基类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">IDBConnection</span>&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">IDBCommand</span>&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">IDataReader</span>&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">IDBFactory</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDBConnection* <span class="title">CreateDBConnection</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDBCommand* <span class="title">CreateDBCommand</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDataReader* <span class="title">CreateDataReader</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//支持SQL Server</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SqlConnection</span>: <span class="keyword">public</span> IDBConnection&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SqlCommand</span>: <span class="keyword">public</span> IDBCommand&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SqlDataReader</span>: <span class="keyword">public</span> IDataReader&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SqlDBFactory</span>:<span class="keyword">public</span> IDBFactory&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDBConnection* <span class="title">CreateDBConnection</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDBCommand* <span class="title">CreateDBCommand</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> IDataReader* <span class="title">CreateDataReader</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line"> </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//支持Oracle</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OracleConnection</span>: <span class="keyword">public</span> IDBConnection&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OracleCommand</span>: <span class="keyword">public</span> IDBCommand&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">OracleDataReader</span>: <span class="keyword">public</span> IDataReader&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EmployeeDAO</span>&#123;</span><br><span class="line">    IDBFactory* dbFactory;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function">vector&lt;EmployeeDO&gt; <span class="title">GetEmployees</span><span class="params">()</span></span>&#123;</span><br><span class="line">        IDBConnection* connection =</span><br><span class="line">            dbFactory-&gt;<span class="built_in">CreateDBConnection</span>();</span><br><span class="line">        connection-&gt;<span class="built_in">ConnectionString</span>(<span class="string">&quot;...&quot;</span>);</span><br><span class="line"></span><br><span class="line">        IDBCommand* command =</span><br><span class="line">            dbFactory-&gt;<span class="built_in">CreateDBCommand</span>();</span><br><span class="line">        command-&gt;<span class="built_in">CommandText</span>(<span class="string">&quot;...&quot;</span>);</span><br><span class="line">        command-&gt;<span class="built_in">SetConnection</span>(connection); <span class="comment">//关联性</span></span><br><span class="line"></span><br><span class="line">        IDBDataReader* reader = command-&gt;<span class="built_in">ExecuteReader</span>(); <span class="comment">//关联性</span></span><br><span class="line">        <span class="keyword">while</span> (reader-&gt;<span class="built_in">Read</span>())&#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/24/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" data-id="cuidr7AYqStZ80xSBxFDr-1oM" data-title="抽象工厂设计模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-工厂方法设计模式" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/24/%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="article-date">
-  <time class="dt-published" datetime="2026-01-24T14:46:15.000Z" itemprop="datePublished">2026-01-24</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/24/%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">工厂方法设计模式</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="动机"><a href="#动机" class="headerlink" title="动机"></a>动机</h2><ul>
-<li>在软件系统中，经常面临着创建对象的工作；由于需求的变化，需要创建对象的具体类型经常变化</li>
-<li>如何应对这种变化？如何绕过常规的对象创建方法（new），提供一种“封装机制”，来避免客户程序和各种“具体对象创建工作”的紧耦合</li>
-</ul>
-<h2 id="模式定义"><a href="#模式定义" class="headerlink" title="模式定义"></a>模式定义</h2><p>定义一个用于创建对象的接口，让子类决定实例化哪个类。Factory Method使得一个类的实例化延迟（目的：解耦， 手段：虚函数）到子类</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><img src="/2026/01/24/%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/factory_method.png" class="">
-
-<h2 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h2><p>使用设计模式之前的代码</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ISplitter</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">split</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">ISplitter</span>()&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BinarySplitter</span> : <span class="keyword">public</span> ISplitter&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TxtSplitter</span>: <span class="keyword">public</span> ISplitter&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PictureSplitter</span>: <span class="keyword">public</span> ISplitter&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">VideoSplitter</span>: <span class="keyword">public</span> ISplitter&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MainForm</span> : <span class="keyword">public</span> Form</span><br><span class="line">&#123;</span><br><span class="line">    TextBox* txtFilePath;</span><br><span class="line">    TextBox* txtFileNumber;</span><br><span class="line">    ProgressBar* progressBar;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Button1_Click</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        ISplitter * splitter=</span><br><span class="line">            <span class="keyword">new</span> <span class="built_in">BinarySplitter</span>();<span class="comment">//依赖具体类</span></span><br><span class="line">        </span><br><span class="line">        splitter-&gt;<span class="built_in">split</span>();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>使用设计模式后的代码</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//抽象类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ISplitter</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">split</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">ISplitter</span>()&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//工厂基类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">SplitterFactory</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> ISplitter* <span class="title">CreateSplitter</span><span class="params">()</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">SplitterFactory</span>()&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//具体类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BinarySplitter</span> : <span class="keyword">public</span> ISplitter&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TxtSplitter</span>: <span class="keyword">public</span> ISplitter&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PictureSplitter</span>: <span class="keyword">public</span> ISplitter&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">VideoSplitter</span>: <span class="keyword">public</span> ISplitter&#123;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//具体工厂</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">BinarySplitterFactory</span>: <span class="keyword">public</span> SplitterFactory&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> ISplitter* <span class="title">CreateSplitter</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">BinarySplitter</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">TxtSplitterFactory</span>: <span class="keyword">public</span> SplitterFactory&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> ISplitter* <span class="title">CreateSplitter</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">TxtSplitter</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PictureSplitterFactory</span>: <span class="keyword">public</span> SplitterFactory&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> ISplitter* <span class="title">CreateSplitter</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">PictureSplitter</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">VideoSplitterFactory</span>: <span class="keyword">public</span> SplitterFactory&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> ISplitter* <span class="title">CreateSplitter</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">VideoSplitter</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//MainForm不依赖具体类</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MainForm</span> : <span class="keyword">public</span> Form</span><br><span class="line">&#123;</span><br><span class="line">    SplitterFactory*  factory;<span class="comment">//工厂</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">MainForm</span>(SplitterFactory*  factory)&#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;factory=factory;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Button1_Click</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">        ISplitter * splitter=</span><br><span class="line">            factory-&gt;<span class="built_in">CreateSplitter</span>(); <span class="comment">//多态new</span></span><br><span class="line">        </span><br><span class="line">        splitter-&gt;<span class="built_in">split</span>();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/24/%E5%B7%A5%E5%8E%82%E6%96%B9%E6%B3%95%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" data-id="cuidKBWO6Zo9rfEAGeOn7x7A2" data-title="工厂方法设计模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
   <nav id="page-nav">
@@ -914,7 +1106,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tags</h3>
     <div class="widget">
-      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetpack%E5%85%A8%E5%AE%B6%E6%A1%B6/" rel="tag">jetpack全家桶</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li></ul>
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetpack%E5%85%A8%E5%AE%B6%E6%A1%B6/" rel="tag">jetpack全家桶</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li></ul>
     </div>
   </div>
 
@@ -924,7 +1116,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/jetpack%E5%85%A8%E5%AE%B6%E6%A1%B6/" style="font-size: 15px;">jetpack全家桶</a> <a href="/tags/kotlin/" style="font-size: 15px;">kotlin</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 20px;">设计模式</a>
+      <a href="/tags/jetpack%E5%85%A8%E5%AE%B6%E6%A1%B6/" style="font-size: 15px;">jetpack全家桶</a> <a href="/tags/kotlin/" style="font-size: 15px;">kotlin</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 15px;">网络</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 20px;">设计模式</a>
     </div>
   </div>
 
@@ -946,6 +1138,14 @@
       <ul>
         
           <li>
+            <a href="/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/">HTTP工作原理、请求方法与状态码</a>
+          </li>
+        
+          <li>
+            <a href="/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/">HTTP的Header和Body</a>
+          </li>
+        
+          <li>
             <a href="/2026/02/08/livedata/">livedata</a>
           </li>
         
@@ -955,14 +1155,6 @@
         
           <li>
             <a href="/2026/02/01/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/">观察者模式</a>
-          </li>
-        
-          <li>
-            <a href="/2026/02/01/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/">策略模式</a>
-          </li>
-        
-          <li>
-            <a href="/2026/01/25/kotlin%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/">kotlin面向对象</a>
           </li>
         
       </ul>
