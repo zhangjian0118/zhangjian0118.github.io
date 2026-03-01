@@ -77,6 +77,106 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-tcp-ip" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/03/01/tcp-ip/" class="article-date">
+  <time class="dt-published" datetime="2026-03-01T06:26:09.000Z" itemprop="datePublished">2026-03-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/03/01/tcp-ip/">tcp/ip</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="为什么要分层"><a href="#为什么要分层" class="headerlink" title="为什么要分层"></a>为什么要分层</h2><p><strong>简化版的网络结构图</strong>:</p>
+<img src="/2026/03/01/tcp-ip/tcp-ip_1.png" class="">
+
+<p>在上述结构图中，客户端和服务器之间会有很多中间节点，这些节点可能是交换机、路由器或网关。</p>
+<p>在理想情况下，客户端往服务器发送一个 HTTP 请求，会有多种路径，而这种路径的选择就叫做“路由”。但由于网络的不稳定性，网络传输的成功率不是也不可能是 100%，所以需要分层。</p>
+<p>为什么呢？我来给你解释一下。</p>
+<p>请求在传输的过程中，可能因某个节点导致消息的丢失，因此需要一种<strong>重传机制</strong>：让接收方在收到消息后发送一个回执，表示消息已收到。如果发送方到了指定的超时时间未收到该回执，就认为消息丢失，去重传一次消息。即使接收方已发送回执，而发送方未收到，也不用担心，重复发送消息，并不会导致接收方重复处理，接收方会根据记录识别出重复的消息，并主动抛弃它。</p>
+<p>在重传机制中，传输的数据可能会比较大，可能会出现传输时间长、传输失败的概率高等问题。解决办法就是<strong>对数据进行分块</strong>，这样当某块数据传输失败了，只需单独重传该数据块即可，这样可以降低平均的传输时间，传输失败的概率也更低。</p>
+
+
+<p>由于有了分块传输，就需要进行分层。因为<strong>应用层</strong>的协议不只有 HTTP，还有 FTP（传文件）、SMTP（邮件）、DNS（域名服务）。</p>
+<p>这些协议都有分块传输的需求，所以需要把分块传输这个通用的功能抽出一层，让这一层只做分块传输：拆分数据块进行分发，接收数据块进行拼装。</p>
+<p>此时应用层就不用去分块了，而是只需将要传输的数据交给下层，让它来做这件事；拼装数据也是由这一层来完成，应用层只需接收完整的数据。</p>
+<p>数据的补发以及发送失败的回执都是由这一层完成，而这一层叫<strong>传输层</strong>。TCP（Transmission Control Protocol）传输控制协议是其中的一个协议，它能够保证数据的稳定传输。</p>
+<p><strong>有了传输层后，为什么还需要分层？</strong></p>
+<p>因为有些场景下，数据并不需要重传。比如游戏数据，在你掉线并重连后，你和其他人是不关心你在掉线时的数据的，只需知道你最新的数据（游戏状态）即可。又比如网络直播，因其实时性，在主播掉线并重连后，我们是不需要知道主播掉线后的画面的，只要知道最新的画面即可。</p>
+<p>将数据发送出去，无需确认的这种策略叫 UDP（User Datagram Protocol）用户数据报协议，这是传输层的另一个协议。</p>
+<p>TCP 和 UDP 都有一个共同的下层网络需求：都需要让一个数据从一个主机到达另一个主机，所以需要再抽取一层。</p>
+<p>此时，传输层不再直接传输数据，只负责拆分、拼装数据，将单个数据块交给下层来完成发送，而这一层叫作<strong>网络层</strong>。IP 协议就位于此层，负责以最小单位来发送和接收网络数据，以及寻址、路由等工作。</p>
+
+
+<p><strong>再来梳理一遍数据传输的过程：</strong></p>
+<p>有一个 HTTP 请求报文需要从客户端发送到服务器，应用层会将发送报文的任务交给传输层，TCP 会将报文进行拆分，然后将每一份数据块交给网络层，IP 去完成单个数据块的发送，IP 并不需要确保数据发送成功。</p>
+<p>等数据到了服务器，网络层会把接收到的数据包逐个交给传输层。传输层在收到某个数据块后，会准备回执发回客户端。如果客户端的传输层在一定时间内没有收到某个数据块的回执，就会执行重传。当服务器的传输层确认接收到了所有完整的数据块后，就会将它们拼装成一条完整报文，发给应用层。</p>
+<p>应用层收到消息，就会准备响应报文给客户端… 至此，一次单向数据传输的过程就结束了。</p>
+<p>你可能还会疑问，TCP&#x2F;IP 不应该是有 4 层吗？</p>
+<p>其实还有一层，叫做<strong>数据链路层</strong>，就是以太网、Wi-Fi等。这一层用于给网络提供现实世界中的物理基础和一些规则。</p>
+<blockquote>
+<p>现在我们使用的双绞线是某种网络的底层协议，使用这种网线连接成的网络就叫做以太网。</p>
+</blockquote>
+
+
+<h2 id="TCP-连接"><a href="#TCP-连接" class="headerlink" title="TCP 连接"></a>TCP 连接</h2><blockquote>
+<p>三次握手过程</p>
+<p>四次挥手过程</p>
+<p>为什么是三次握手</p>
+<p>为什么是四次挥手</p>
+<p>为什么客户端在TIME-WAIT阶段要等2MSL？</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/three-fighter/p/14802786.html">https://www.cnblogs.com/three-fighter/p/14802786.html</a></p>
+</blockquote>
+<h3 id="什么是连接"><a href="#什么是连接" class="headerlink" title="什么是连接"></a>什么是连接</h3><p>连接指的其实就是 TCP 连接，TCP 是一种有状态的连接。双方进行消息交换时，并不需要指明身份，因为在连接时，身份信息就已经保存了。而让通信的双方认识（交换身份信息）的过程就叫做双方的连接。建立连接是为了让双方认识对方并进行通信，不将对方的消息丢弃。</p>
+<p>TCP 中有端口的概念，那么它是什么呢？</p>
+<p>就是你电脑用于网络通信的端点。比如一次连接中，会有主机 A 的某个端口与主机 B 的某个端口建立连接。在 Java 中，我们通常会使用 Socket (套接字) 来使用端口，你可以把它想象成是一个专用于网络通信的插座，确保数据能在两端间传输。</p>
+<p>我们再简单说说 TCP 连接的建立和关闭：</p>
+<h3 id="TCP-连接的建立"><a href="#TCP-连接的建立" class="headerlink" title="TCP 连接的建立"></a>TCP 连接的建立</h3>
+
+<p>上图就是“三次握手”的过程：</p>
+<p>主动连接方 A 发送 TCP 消息给被连接方 B，表示想要与 B 建立连接。B 收到后会返回一个消息，表示“我知道了，并且我也要和你建立连接”。然后 A 会再发送一条消息给 B，表示“好的，我知道你想要和我建立连接了”。</p>
+<p>至此，双方的连接就成功建立了。</p>
+<h3 id="TCP-连接的关闭"><a href="#TCP-连接的关闭" class="headerlink" title="TCP 连接的关闭"></a>TCP 连接的关闭</h3><p>连接之所以需要关闭，主要是为了节省资源。因为每次建立连接不仅需要在内存中保存对方的信息，还要持续占用主机的端口。</p>
+
+
+<p>上图就是“四次挥手”的过程：</p>
+<p>连接方 A 会先和连接方 B 说“<strong>我没有消息要发送了</strong>”。B 收到后，会先和 A “<strong>我知道了</strong>”（这是第二次挥手）。然后，B 会检查自己是否还有数据要发送，等到所有数据都发送完毕后，B 会再发送一条消息给 A 说“<strong>我也没有消息要发送了</strong>”（这是第三次挥手）。最后，A 会和 B 说“<strong>好的，我知道了</strong>”（第四次挥手）。</p>
+<p>经过这个过程，连接就关闭了。</p>
+<p>这里 B 需要回复两次是因为，它在收到 A 的关闭请求时，B 可能有数据还未发完，所以需要先回应 A 的请求，等到数据全发完后，再正式通知 A “可以关闭了”。</p>
+<h3 id="长连接"><a href="#长连接" class="headerlink" title="长连接"></a>长连接</h3><p><strong>长连接就是连接一直不关闭。</strong></p>
+<p>因为理想情况下，所有人的主机都可以互相直连，但实际上，由于内网的存在，有一部分人并不能直接连接外部网络，而是需要通过某个服务器的端口来连接外网，让它帮你转发数据。就比如你手机的数据网络，它就处于内网中，你每次使用时，运营商的网关都会给你随机分配一个内网 IP。</p>
+<p>然而，中间的网关为了节省资源，会将<strong>长时间不活动的连接关闭</strong>。但有时，你需要持续接收消息，需要保证连接不断开，这时就需要用到长连接。</p>
+<p>实现长连接的方式叫做<strong>心跳</strong>，也就是每隔一段时间，就使用 TCP 连接发送一些无意义的短消息给对方，这样网关就不会认为你是空闲连接了。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/03/01/tcp-ip/" data-id="cuidmV03AEiOFFA_VRfFxOYX_" data-title="tcp/ip" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-登录和授权" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/" class="article-date">
@@ -218,7 +318,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/" data-id="cuidFcA231iod0-XIJ-Vzy5g9" data-title="登录和授权" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/" data-id="cuid7hs1c39Kzu-vv-oWtYjpO" data-title="登录和授权" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -400,7 +500,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/" data-id="cuidhM4_4gd12jKH-IDCxawc-" data-title="编码、加密、Hash、序列化" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/" data-id="cuidutfcx2xtwx7fwjwV-eaRB" data-title="编码、加密、Hash、序列化" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -541,7 +641,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/" data-id="cuidzwV_sYmT2M0YdfUnA6PnY" data-title="HTTP工作原理、请求方法与状态码" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/" data-id="cuidcxbWfbOWGpIzYJCuUjKXc" data-title="HTTP工作原理、请求方法与状态码" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -698,7 +798,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/" data-id="cuidbP4j73BLXzfpDGSCJCRAK" data-title="HTTP的Header和Body" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/" data-id="cuidnq3IvNs1onQqPFu582lip" data-title="HTTP的Header和Body" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -797,7 +897,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/08/livedata/" data-id="cuidOgniIBrAgf4Wzi9w6ty1G" data-title="livedata" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/08/livedata/" data-id="cuidrfU_gKcYZ4iuzIuqPpRzh" data-title="livedata" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -918,7 +1018,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/08/lifecycle/" data-id="cuidX5JNw6uqKbB6Pj2XmdkTw" data-title="lifecycle" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/08/lifecycle/" data-id="cuidjBK-CaflferFD6pmaq1Af" data-title="lifecycle" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -971,7 +1071,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/01/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/" data-id="cuidVAlCh8Heu5e81-4XcZBLB" data-title="观察者模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/01/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/" data-id="cuidGAEBexhh0eEyLR9VMsr3v" data-title="观察者模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -1024,7 +1124,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/01/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/" data-id="cuideloHTdiT87j3l3S1H1dVx" data-title="策略模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/01/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/" data-id="cuidJVrmbmE9lb2jHMqGms5qG" data-title="策略模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -1257,7 +1357,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/25/kotlin%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" data-id="cuid3QVKw7TqVuGWfZhclmAPp" data-title="kotlin面向对象" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/01/25/kotlin%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" data-id="cuidn1bxrevFns91nBsYtD-3D" data-title="kotlin面向对象" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -1271,65 +1371,11 @@
 
 
   
-    <article id="post-访问器设计模式" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/25/%E8%AE%BF%E9%97%AE%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="article-date">
-  <time class="dt-published" datetime="2026-01-25T04:54:18.000Z" itemprop="datePublished">2026-01-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/25/%E8%AE%BF%E9%97%AE%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">访问器设计模式</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="动机"><a href="#动机" class="headerlink" title="动机"></a>动机</h2><ul>
-<li>在软件构建过程中，由于需求的变化，某些类层次结构中常常需要增加新的行为方法，如果直接在基类做这样的更改，将会给子类带来繁重的变更负担，甚至破坏原有的设计。</li>
-<li>如何在不更改类层次结构前提下，在运行时根据需求透明地为类层次结构上地各个类增加新的操作，从而避免上述问题？</li>
-</ul>
-<h2 id="模式定义"><a href="#模式定义" class="headerlink" title="模式定义"></a>模式定义</h2><p>表示一个作用于某对象结构中的各元素操作。使得可以在不改变（稳定）各元素的类前提下定义（扩展）作用于这些元素的新操作（变化）</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><img src="/2026/01/25/%E8%AE%BF%E9%97%AE%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/visitor.png" class="">
-
-<h2 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h2><p>使用前</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Visitor</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Element</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Func1</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Func2</span><span class="params">(<span class="type">int</span> data)</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Func3</span><span class="params">(<span class="type">int</span> data)</span></span>=<span class="number">0</span>;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Element</span>()&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ElementA</span> : <span class="keyword">public</span> Element</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Func1</span><span class="params">()</span> <span class="keyword">override</span></span>&#123;</span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Func2</span><span class="params">(<span class="type">int</span> data)</span> <span class="keyword">override</span></span>&#123;</span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ElementB</span> : <span class="keyword">public</span> Element</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Func1</span><span class="params">()</span> <span class="keyword">override</span></span>&#123;</span><br><span class="line">        <span class="comment">//***</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Func2</span><span class="params">(<span class="type">int</span> data)</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        <span class="comment">//***</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>使用后</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Visitor</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Element</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">accept</span><span class="params">(Visitor&amp; visitor)</span> </span>= <span class="number">0</span>; <span class="comment">//第一次多态辨析</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Element</span>()&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ElementA</span> : <span class="keyword">public</span> Element</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">accept</span><span class="params">(Visitor &amp;visitor)</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        visitor.<span class="built_in">visitElementA</span>(*<span class="keyword">this</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ElementB</span> : <span class="keyword">public</span> Element</span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">accept</span><span class="params">(Visitor &amp;visitor)</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        visitor.<span class="built_in">visitElementB</span>(*<span class="keyword">this</span>); <span class="comment">//第二次多态辨析</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Visitor</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">visitElementA</span><span class="params">(ElementA&amp; element)</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">visitElementB</span><span class="params">(ElementB&amp; element)</span> </span>= <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">Visitor</span>()&#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//==================================</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//扩展1</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Visitor1</span> : <span class="keyword">public</span> Visitor&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">visitElementA</span><span class="params">(ElementA&amp; element)</span> <span class="keyword">override</span></span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Visitor1 is processing ElementA&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">visitElementB</span><span class="params">(ElementB&amp; element)</span> <span class="keyword">override</span></span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Visitor1 is processing ElementB&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line">     </span><br><span class="line"><span class="comment">//扩展2</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Visitor2</span> : <span class="keyword">public</span> Visitor&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">visitElementA</span><span class="params">(ElementA&amp; element)</span> <span class="keyword">override</span></span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Visitor2 is processing ElementA&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">visitElementB</span><span class="params">(ElementB&amp; element)</span> <span class="keyword">override</span></span>&#123;</span><br><span class="line">        cout &lt;&lt; <span class="string">&quot;Visitor2 is processing ElementB&quot;</span> &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line">        </span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">        </span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    Visitor2 visitor;</span><br><span class="line">    ElementB elementB;</span><br><span class="line">    elementB.<span class="built_in">accept</span>(visitor);<span class="comment">// double dispatch</span></span><br><span class="line">    </span><br><span class="line">    ElementA elementA;</span><br><span class="line">    elementA.<span class="built_in">accept</span>(visitor);</span><br><span class="line"></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>Visitor模式最大的确定在于拓展类层次结构（增加Element子类）会导致Visitor类的改变。因此Visitor模式适用于“Element类层次结构稳定，而其中的操作却经常面临频繁改动”， 使用的<strong>前提比较苛刻</strong></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/25/%E8%AE%BF%E9%97%AE%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" data-id="cuidYt_sGEkeqoOosbU6WWJuL" data-title="访问器设计模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
 
 
   <nav id="page-nav">
     
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
   </nav>
 
 </section>
@@ -1375,6 +1421,10 @@
       <ul>
         
           <li>
+            <a href="/2026/03/01/tcp-ip/">tcp/ip</a>
+          </li>
+        
+          <li>
             <a href="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/">登录和授权</a>
           </li>
         
@@ -1388,10 +1438,6 @@
         
           <li>
             <a href="/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/">HTTP的Header和Body</a>
-          </li>
-        
-          <li>
-            <a href="/2026/02/08/livedata/">livedata</a>
           </li>
         
       </ul>
