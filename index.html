@@ -77,6 +77,161 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-登录和授权" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/" class="article-date">
+  <time class="dt-published" datetime="2026-03-01T06:03:40.000Z" itemprop="datePublished">2026-03-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/">登录和授权</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="Cookie"><a href="#Cookie" class="headerlink" title="Cookie"></a>Cookie</h2><p>Cookie 的起源是购物车。当时有浏览器公司会帮别人开发网站，恰好一个电商网站提出了购物车功能的需求，想要将购物车的数据存储到本地，浏览器的开发者就为此新增了一个 Cookie 的功能。</p>
+<p>Cookie 可以在本地存储任何服务器想要存储在本地的数据。</p>
+<h3 id="工作机制"><a href="#工作机制" class="headerlink" title="工作机制"></a>工作机制</h3><p>它的工作机制是: 服务器将想要客户端存储的数据放到 <code>Set-Cookie</code> Header 中，通过响应报文发送给客户端，客户端按照协议自动将数据存在本地。</p>
+<p>比如用户往购物车添加了苹果，那么浏览器会给服务器发送请求，Body 中包含表示苹果的数据。</p>
+<img src="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/cookie_1.png" class="">
+
+<p>服务器会将苹果数据放到 <code>Set-Cookie</code> Header 中进行响应，表示让客户端存储当前的 Cookie 值。</p>
+<img src="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/cookie_2.png" class="">
+
+<p>客户端收到响应后，会自动将 <code>Set-Cookie</code> 的值存在浏览器的缓存中，之后浏览器就可以使用这个 Cookie 与服务器进行交互，即在请求中携带此 Cookie。</p>
+<p>并且 Cookie 对应的目标服务器也会被一并存储下来，这是为了区分 Cookie 所属的域名。防止出现访问 A 网站，却带上了 B 网站 Cookie 的情况。</p>
+<p>当用户往购物车又添加了一根香蕉时，浏览器又会发起请求，但此时会自动将之前存储的 Cookie 携带上。</p>
+<img src="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/cookie_3.png" class="">
+
+<p>客户端收到响应结果后，发现当前要存储 <code>cart</code> 这个 <code>key</code> 已经存在，就会覆盖它的值，更新为 <code>&quot;apple=1&amp;banana=1&quot;</code>。</p>
+<img src="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/cookie_4.png" class="">
+
+<p>整个过程，计算由服务器完成，存储由客户端完成。当用户要结账时，只需发送结账的请求，购物车相关信息会通过 Cookie Header 被携带上。</p>
+<p>现在看来，这个机制可能有点多余。因为既然信息都要存储本地，直接在本地进行计算不就行了吗？</p>
+<p>这是因为当时客户端脚本能力很弱，并不能方便地进行计算，直到 JavaScript 的出现和发展，前端才有了逻辑运算能力。</p>
+<h3 id="Cookie-的作用"><a href="#Cookie-的作用" class="headerlink" title="Cookie 的作用"></a>Cookie 的作用</h3><ul>
+<li><strong>会话管理</strong>: 登录状态、购物车等。</li>
+</ul>
+<p>​       登录时，客户端会将用户名和密码发送给服务器。如果验证通过，服务器就会将会话信息记录下来，并且将会话 id 通过 <code>Set-Cookie</code> 返回。会话你可以理解为用户登录到用户退出（登录）的完整过程，<code>session_id</code> 是权限证明，让无状态的 HTTP 能够识别当前请求是同一次会话中的。</p>
+<img src="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/cookie_5.png" class="">
+
+<p>会话 id 可用于后续的身份认证，只有携带上这个会话 id，才能进行后续操作，比如获取用户信息、修改头像、昵称。</p>
+<blockquote>
+<p>同一个服务器，可以存放多个 Cookie，只需 key 不同即可。所以我们才能既保存购物车信息，又持有会话 id。</p>
+</blockquote>
+<img src="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/cookie_6.png" class="">
+
+<ul>
+<li><strong>个性化</strong>: 用户偏好、主题</li>
+</ul>
+<p>​        比如改变网站的显示风格时，也会将此次改变发送给服务器。在服务器返回新的页面数据之前，服务器会将此次更改与 <code>client_id</code> 关联并记录在服务端，以便下次该用户访问网站时，能够提供最新的配置。</p>
+<img src="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/cookie_7.png" class="">
+
+<ul>
+<li><strong>Tracking</strong>: 分析用户行为</li>
+</ul>
+<p>使用 Cookie 分析用户行为的工作模式是：</p>
+<p>比如从网站 A 访问一张由第三方网站 B 提供的图片时，可以在图片链接后加上 <code>?from=``shop.com</code>，用来给网站 B 的服务器提供额外的信息：你是从哪个网站中访问到这张图片的。</p>
+<p>更常见的是，在网页加载含有第三方网站 B 的资源时，浏览器会自动请求这个资源链接。此时，网站 B 的服务器就可以在响应中设置其专属的 Cookie（例如 <code>client_id</code>）。这样，当用户访问了其他同样内嵌了网站 B 资源的网站 C 时，浏览器会再次请求并自动携带上这个 <code>client_id</code>，从而让第三方网站 B 得知同一个用户访问了网站 A，又访问了网站 C。</p>
+<p>这样第三方会越发了解该用户的画像，以便更好地推广告。</p>
+<img src="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/cookie_8.png" class="">
+
+<p>总之，Cookie 是一种客户端帮助服务端记录信息的工作机制。虽然它非常经典，但在处理登录状态时，现在我们更多会使用专门为授权而设计的 <code>Authorization</code> Header。</p>
+<h2 id="Authorization"><a href="#Authorization" class="headerlink" title="Authorization"></a>Authorization</h2><p>它本就是 HTTP 中设计用来做登录授权的 Header，更加标准和灵活。</p>
+<p>它有两种主流用法，第一种是 Basic。</p>
+<h3 id="Basic"><a href="#Basic" class="headerlink" title="Basic"></a>Basic</h3><p>格式为：<code>Authorization: Basic &lt;username:password(Base64ed)&gt;</code></p>
+<p>其中 <code>(Base64ed)</code> 的意思是将 <code>username:password</code> 这个字符串进行一次 <strong>Base64</strong> 编码。比如一个获取用户信息的请求报文可以是这样的：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET /user/1 HTTP/1.1</span><br><span class="line">Host: example.com</span><br><span class="line">Authorization Basic dXNlcm5hbWU6cGFzc3dvcmQ=</span><br></pre></td></tr></table></figure>
+
+<p>如果服务器验证成功，就可以成功获取到用户信息；否则返回的状态码是 401，表示用户未授权，需要认证。</p>
+<img src="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/base64.png" class="">
+
+<p>Basic 这种用法很实用，但是有安全风险。</p>
+<ul>
+<li>账号、密码使用 Base64 编码进行传输，如果被截获，会导致账号、密码泄露。不过当启用了 HTTPS 后，整个请求报文会被加密，也就无法得到 Token 值了。</li>
+<li>在客户端会反复使用到 Token，所以会将 Token 存储到本地。要是手机被 Root 了，且用户授予了某个恶意软件 Root 权限，就可能会导致 Token 被恶意软件盗取。</li>
+<li>不过一般来说，用户是不会主动将手机的安全性破坏的。</li>
+</ul>
+<h3 id="Bearer"><a href="#Bearer" class="headerlink" title="Bearer"></a>Bearer</h3><p>Bearer 可以翻译为 “持有人”，也就是持有了访问令牌（Token）的意思。</p>
+<p>它的格式是：<code>Authorization: Bearer &lt;bearer token&gt;</code></p>
+<p><code>bearer token</code> 的值<strong>一般是从授权方获取，而非本地计算得出</strong>。</p>
+<p>最常见的获取方式是通过 OAuth2 的授权流程，在讲它的流程之前，我们先来看看第三方登录。</p>
+<p>在掘金点击第三方登录后，会弹出如下窗口：</p>
+<img src="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/bearer.png" class="">
+
+<p>弹出这个窗口的目的是进行第三方授权，让 Github 将你的信息的获取权限授予给掘金。此时授权的第三方是掘金，为什么呢？你在 Gitbhub 的信息权限本是你和 Github 约定的。</p>
+<p>授权后，掘金会通过这个权限拿到你在 Github 上的信息，比如用户名、头像等，然后使用这些信息注册一个掘金账号（如果未注册的话）并登录该账号。</p>
+<p>这就是第三方登录，它内部包含了一个第三方授权的过程。知道了这些，我们来看第三方授权的实际过程，也就是 <strong>OAuth2 的流程</strong>。</p>
+<ol>
+<li>首先，第三方网站 A（如掘金）会向授权方网站 B（如 Github）申请第三方授权合作，得到 <code>client_id</code> 和 <code>client_secret</code>。</li>
+<li>我们在网站 A，点击了第三方登录，就会跳转到网站 B，并带上 <code>client_id</code>，使得授权方能够根据该 <code>client_id</code> 获取需要给用户展示的信息，比如上图中的图标、名称、授予的权限、授权后的重定向网址等。</li>
+<li>在用户授权后，网站 B 会返回一个 Authorization Code 给客户端，这个是授权码，不过它并不是 Token，而是用来获取 Token 的。</li>
+<li>为什么不直接返回 Token？</li>
+<li>为了安全，因为 OAuth2 的授权过程并不强制使用 HTTPS。如果使用 HTTP，可能会导致 Token 泄露。并且用户电脑环境的安全性也无法保证，所以 Token 的传递不应该经过用户浏览器。</li>
+<li>客户端拿到 Authorization Code 后，会将其发送给自己的服务器，让服务器通过授权码以及 <code>client_secret</code>，向授权方获取 Token。</li>
+<li>其中 <code>client_secret</code> 是密码的作用，用于验证身份。这个是高度机密的凭证，绝对不能泄露，一般是安全地保存在服务器上。</li>
+</ol>
+<p>此时 OAuth2 授权的流程就结束了。</p>
+<img src="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/oauth2.png" class="">
+
+<blockquote>
+<p>OAuth2 四种授权模式：<a target="_blank" rel="noopener" href="https://dev.mi.com/console/doc/detail?pId=711">https://dev.mi.com/console/doc/detail?pId=711</a></p>
+</blockquote>
+<p>接着还有登录流程:</p>
+<p>服务器 A 会使用获得的 Token，向网站 B 发送请求获取用户信息。然后在自己的服务器中完成用户账户的注册（或匹配已有账户），并登录。然后将登录成功的响应返回给浏览器，浏览器根据响应显示登录成功的页面。</p>
+<p>在现实中，有些实现会选择将 Token 发给客户端，虽然这样可行，但也破坏了 OAuth2 精心设计的安全性，因为这样可能会导致 Token 在不安全的环境中泄露。</p>
+<p>另外，Bearer Token 也可以在自己的 App 中使用，其工作方式是这样的：</p>
+<ol>
+<li>向自己的服务器发起登录请求，其请求报文可能是这样的：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">POST /login HTTP/1.1</span><br><span class="line">Host: api.example.com</span><br><span class="line"></span><br><span class="line">username=my_username&amp;password=my_password</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>服务器的响应可能为：</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 200 OK</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">&#123;&quot;access_token&quot;:&quot;eyJhbGciOiJFZERTQSIsImtpZCI6IkNNR1RRMlZFOTIifQ.eyJleHAiOj...&quot;&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>然后客户端会将上述的 token 值存到本地，后续请求会带上这个 token，来作为权限的证明。</li>
+</ol>
+<p>最后我们来看看 Refresh Token，它大概长这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;token_type&quot;:&quot;Bearer&quot;,</span><br><span class="line">  &quot;access_token&quot;:&quot;xxxxx&quot;,</span><br><span class="line">  &quot;refresh_token&quot;:&quot;xxxxx&quot;,</span><br><span class="line">  &quot;expires_time&quot;:&quot;xxxxx&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我们可以使用 <code>access_token</code> 来完成获取用户信息等操作，而 <code>refresh_token</code> 则是一种长期有效的凭证，用于在 <code>access_token</code> 过期后，无需与用户再次交互，即可获取一个新的、有效的 <code>access_token</code>。</p>
+<img src="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/refresh_token.png" class="">
+
+<p>为什么要这么做？</p>
+<p>首先，为了安全，<code>access_token</code> 的有效期会比较短（如几小时）。当它失效后，我们可以使用 <code>refresh_token</code> 来刷新它，从而避免让用户多次重新登录授权，提高用户体验；</p>
+<p>其次，Token 还是有可能泄露的。使用 <code>refresh_token</code> 机制，能够降低 <code>access_token</code> 泄露所造成的危害。同时，服务端也可以通过 <code>refresh_token</code> 在必要时，让某个用户的所有凭证失效。</p>
+<p>所以 <code>refresh_token</code> 的重要性也很高，不亚于用户的密码，它需要被安全地保存，不能泄露。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/" data-id="cuidUZrEzPnw5Ei0QfdV_J719" data-title="登录和授权" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-编码、加密、Hash、序列化" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/" class="article-date">
@@ -245,7 +400,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/" data-id="cuidVOUhtkjg8qMMyV4rAJaCE" data-title="编码、加密、Hash、序列化" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/" data-id="cuidrsXL7_F3ppOfcxk3vq2nc" data-title="编码、加密、Hash、序列化" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -386,7 +541,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/" data-id="cuido6msFIOrWNKVvpDWW7Uwc" data-title="HTTP工作原理、请求方法与状态码" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/" data-id="cuidzTy12HHTVGkGyyTcK87hC" data-title="HTTP工作原理、请求方法与状态码" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -543,7 +698,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/" data-id="cuid03ODzWq2O8i8GJKBeMlhy" data-title="HTTP的Header和Body" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/" data-id="cuidtkR8YuyXaOcKDTiphYhMM" data-title="HTTP的Header和Body" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -642,7 +797,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/08/livedata/" data-id="cuidilYGYKV6Kr0oB3TOh_Aol" data-title="livedata" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/08/livedata/" data-id="cuidybWsgo18iD2Tdhv5AK31W" data-title="livedata" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -763,7 +918,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/08/lifecycle/" data-id="cuidXHQ2x9FAwSgYexWpqAc8a" data-title="lifecycle" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/08/lifecycle/" data-id="cuidywMzhsUjimBO9EAiuntPy" data-title="lifecycle" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -816,7 +971,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/01/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/" data-id="cuidEXmbB1DaSq2GzvEibe8Z1" data-title="观察者模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/01/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/" data-id="cuidu71AV7Zm6PHCmWZvUb6c0" data-title="观察者模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -869,7 +1024,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/01/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/" data-id="cuidtr8sEu7HELh8lGgFMzTBV" data-title="策略模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/01/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/" data-id="cuidxJJq11qMaCa_EJfHYBjZ7" data-title="策略模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -1102,7 +1257,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/25/kotlin%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" data-id="cuidH08tTM4JM5fou-CJroa5C" data-title="kotlin面向对象" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/01/25/kotlin%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" data-id="cuidOzXmkYfIqGQulh_myfxum" data-title="kotlin面向对象" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -1156,54 +1311,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/25/%E8%AE%BF%E9%97%AE%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" data-id="cuid1E2QO11ZR7dJCXzNfEUJH" data-title="访问器设计模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-迭代器设计模式" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/25/%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="article-date">
-  <time class="dt-published" datetime="2026-01-25T04:12:04.000Z" itemprop="datePublished">2026-01-25</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/25/%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">迭代器设计模式</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="动机"><a href="#动机" class="headerlink" title="动机"></a>动机</h2><ul>
-<li>在软件构建过程中，集合对象内部结构常常变化各异。但是对于这些集合对象，我们希望在不暴露其内部结构的同时，可以让外部客户代码透明地访问其中包含地元素；同时这种透明遍历也为同一种算法在多种集合对象上进行操作提供了可能。</li>
-<li>使用面向对象技术将这种遍历机制抽象为“迭代器对象”为应对变化中地集合对象提供一种优雅地方式</li>
-</ul>
-<h2 id="模式定义"><a href="#模式定义" class="headerlink" title="模式定义"></a>模式定义</h2><p>提供一种方法顺序访问一个聚合对象中地各个元素，而又不暴露该对象的内部表示。</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><img src="/2026/01/25/%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/iterator.png" class="">
-
-<h2 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Iterator</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">first</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">next</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">bool</span> <span class="title">isDone</span><span class="params">()</span> <span class="type">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> T&amp; <span class="title">current</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyCollection</span>&#123;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    </span><br><span class="line">    <span class="function">Iterator&lt;T&gt; <span class="title">GetIterator</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">template</span>&lt;<span class="keyword">typename</span> T&gt;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">CollectionIterator</span> : <span class="keyword">public</span> Iterator&lt;T&gt;&#123;</span><br><span class="line">    MyCollection&lt;T&gt; mc;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">CollectionIterator</span>(<span class="type">const</span> MyCollection&lt;T&gt; &amp; c): <span class="built_in">mc</span>(c)&#123; &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">first</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">next</span><span class="params">()</span> <span class="keyword">override</span> </span>&#123;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">isDone</span><span class="params">()</span> <span class="type">const</span> <span class="keyword">override</span></span>&#123;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function">T&amp; <span class="title">current</span><span class="params">()</span> <span class="keyword">override</span></span>&#123;</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">MyAlgorithm</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    MyCollection&lt;<span class="type">int</span>&gt; mc;</span><br><span class="line">    </span><br><span class="line">    Iterator&lt;<span class="type">int</span>&gt; iter= mc.<span class="built_in">GetIterator</span>();</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (iter.<span class="built_in">first</span>(); !iter.<span class="built_in">isDone</span>(); iter.<span class="built_in">next</span>())&#123;</span><br><span class="line">        cout &lt;&lt; iter.<span class="built_in">current</span>() &lt;&lt; endl;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/25/%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" data-id="cuidpk9L6R6xzKOk-VbrMd3ry" data-title="迭代器设计模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/01/25/%E8%AE%BF%E9%97%AE%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" data-id="cuidwDUkQRBEByc0Tq0HnDlOa" data-title="访问器设计模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -1267,6 +1375,10 @@
       <ul>
         
           <li>
+            <a href="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/">登录和授权</a>
+          </li>
+        
+          <li>
             <a href="/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/">编码、加密、Hash、序列化</a>
           </li>
         
@@ -1280,10 +1392,6 @@
         
           <li>
             <a href="/2026/02/08/livedata/">livedata</a>
-          </li>
-        
-          <li>
-            <a href="/2026/02/08/lifecycle/">lifecycle</a>
           </li>
         
       </ul>
