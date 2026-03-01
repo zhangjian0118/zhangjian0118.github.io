@@ -77,6 +77,188 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-编码、加密、Hash、序列化" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/" class="article-date">
+  <time class="dt-published" datetime="2026-03-01T05:40:38.000Z" itemprop="datePublished">2026-03-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/">编码、加密、Hash、序列化</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h1 id="加密"><a href="#加密" class="headerlink" title="加密"></a>加密</h1><h3 id="古典密码学"><a href="#古典密码学" class="headerlink" title="古典密码学"></a>古典密码学</h3><p>从密码学开始说起，密码学的起源是古代战争。那个时候的密码学，现在被称为“古典密码学”。</p>
+<p>古代战争中，两个国家之间经常需要进行书信沟通。为了防止信息泄露，古人发明了密码学，来对书信内容进行加密。</p>
+<p>加密方式主要有：</p>
+<ul>
+<li><strong>置换式加密</strong>: 典型的代表是密码棒。</li>
+</ul>
+<img src="/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/mimabang.png" class="">
+
+<p>密码棒的规格就是加密和解密的关键。当需要书写密信时，就将纸条缠绕到木棒上进行书写；当需要解读密信时，就将纸条绕到同样规格的棒子上进行阅读。如果单独将纸条拿出来阅读，只会看到一串乱序的文本。</p>
+<p>密码棒虽然简单，但已包含了密码学的两个重要元素：</p>
+<p>​	加密算法: 缠绕到木棒上进行书写</p>
+<p>​	密钥: 木棒的规格</p>
+<ul>
+<li>**替换式加密：**按照一个固定的规则，使用不同的文字替换掉原先的文字。最简单的方法就是将字母表整体移动几位，从而产生一个码表，让原文与密文形成映射关系。例如：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 码表（向右平移5位）</span><br><span class="line">ABCDEFGHIJKLMNOPQRSTUVWXYZ  // 原始字符</span><br><span class="line">FGHIJKLMNOPQRSTUVWXYZABCDE  // 密码字符</span><br><span class="line"></span><br><span class="line">// 原文</span><br><span class="line">I love you.</span><br><span class="line">// 密文</span><br><span class="line">N qtaj dtz.</span><br></pre></td></tr></table></figure>
+
+<p>此时，加密算法是替换文字，而密钥则是这张码表。</p>
+<h3 id="现代密码学"><a href="#现代密码学" class="headerlink" title="现代密码学"></a>现代密码学</h3><p>随着计算机出现，一些复杂的数学算法被应用在了加密上，就出现了“现代密码学”。</p>
+<p>现代密码学使用数学算法对计算机数据进行加密，不止可以加密文字，还可以加密<strong>任何的二进制数据</strong>。</p>
+<p>现代密码学主要有两类：对称加密和非对称加密。</p>
+<h4 id="对称加密"><a href="#对称加密" class="headerlink" title="对称加密"></a>对称加密</h4><p>原理: 使用密钥和加密算法对数据进行转换，得到密文；在使用密钥和解密算法对密文进行逆向转换，得到原数据。</p>
+<img src="/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/jiami1.png" class="">
+
+<p>与古典密码学不同，现代密码学中的密文会在网络中传输，无论如何都会被截获，所以更加注重反破解。</p>
+<p>对称加密的经典算法有: DES、AES。</p>
+<blockquote>
+<p>其中 DES 因密钥太短已被弃用（只有 56 位），在很短时间（一天）内就能够通过穷举法试出密钥。</p>
+</blockquote>
+<h4 id="非对称加密"><a href="#非对称加密" class="headerlink" title="非对称加密"></a>非对称加密</h4><p>对称加密有一个缺点：密钥无法安全地发送给对方。密钥在非安全的网络上传输，一旦泄露，加密就没有了意义。为此，就有了非对称加密。</p>
+<p>非对称加密的原理: 创建一对密钥：公钥和私钥，分别来加密和解密。公钥是公开的，可以发送给任何人；私钥是保密的，只能自己持有。</p>
+<img src="/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/jiami2.png" class="">
+
+<p>这样一来，通信的过程也就安全了。比如 A 要给 B 发送消息，A 就可以使用 B 的公钥对消息进行加密，B 收到后再使用自己的私钥对密文进行解密。即使公钥和密文都被第三方拿到了，第三方也无法解密，因为没有 B 的私钥。</p>
+<p>这样虽然安全，但是只能单向通信。要实现双向通信，解决办法也很简单，就是通信双方各自创建一对密钥，然后互相交换公钥即可。</p>
+<h4 id="数字签名"><a href="#数字签名" class="headerlink" title="数字签名"></a>数字签名</h4><p>非对称加密还可以用来做数字签名， 因为加密只保证中间人拿到数据看不懂的问题， 无法校验发数据者的身份，即我拿到一份加密的数据， 并不清楚发信息的是否真的是这个人。 私钥加密的数据公钥也可以解密，所以用非对称加密做数字签名。</p>
+<img src="/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/shuziqianming.png" class="">
+
+<p>不过，直接对原文进行签名是有漏洞的：别人虽然不能拿到 <strong>[对方私钥]</strong> 解开密文，但可以使用 <strong>[公钥]</strong> 验证签名数据，这样原数据就泄露了。</p>
+<p>以上的加密、签名过程，还少了一个对数据进行 <strong>Hash</strong> 的过程。</p>
+<p>Hash（哈希）的作用是将任何数据都变为一串固定长度的、独特的“指纹”（摘要）。这个过程是单向的，无法从指纹得到原文。</p>
+<p>所以，正确的做法是：发送方先对<strong>原数据</strong>进行 Hash 运算，得到一个固定长度的<strong>摘要</strong>。然后使用自己的私钥对这个摘要进行签名。再使用对方的公钥加密<strong>原数据</strong>，得到<strong>密文</strong>。最后将密文和签名发送给对方。</p>
+<img src="/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/shuziqianming2.png" class="">
+
+<p>这样，即使第三方使用公钥验证签名，得到了也不会是原数据，而是原数据的摘要，避免了信息泄露。另外，接受方也可以通过比对 Hash 值来验证原数据的完整性。</p>
+<p>非对称加密的经典算法有 RSA 和 DSA。其中 RSA 可用于加密和签名，而 DSA 只能用来签名。这是因为 DSA 专门为签名做了优化，在签名和验证的速度上通常比 RSA 更快。</p>
+<h1 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h1><p><a href="https://link.juejin.cn/?target=https://zh.wikipedia.org/wiki/Base64">Base64</a> 是将二进制数据转换为由 64 个字符组成的字符串的编码算法。</p>
+<blockquote>
+<p>这 64 个字符分别是：小写字母a-z、大写字母A-Z、数字0-9、符号”+” 和 “&#x2F;“。</p>
+</blockquote>
+<p><strong>什么是二进制数据？</strong></p>
+<p>广义上来说，所有计算机数据（如文本、图片）都是二进制数据；狭义上，<strong>非文本数据</strong>（如视频、图片）就是二进制数据，这种说法也是最通用的、大家最认可的。而 Base64 针对的是任意的二进制数据。</p>
+<p>编码的过程是将二进制数据的每 6 个比特位转成一个 Base64 码表中对应的字符。例如 “Man” 编码的结果是<code>TWFu</code>，其原理为：</p>
+<img src="/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/base64_1.png" class="">
+
+<img src="/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/base64_2.png" class="">
+
+<p>另外，Base64 编码是每 3 个字节（24位）一组进行处理的，如果原文数据的字节数不能被 3 整除，那么会在编码后的字符串末尾使用 <code>=</code> 字符进行填充，使得编码后的字符串长度是 4 的倍数。</p>
+<img src="/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/base64_3.png" class="">
+
+<p><strong>那么 Base64 编码的作用是什么？</strong></p>
+<p>其实它的作用是将<strong>二进制数据转换为纯文本字符串</strong>，使其能够在只支持文本的场景下使用。比如可以将图片保存到文本文件中；可以通过邮件传输图片（之前的邮件中不能传输图片）。</p>
+<p>最后补充一点，使用 Base64 来传输图片，一点也不高效和安全。</p>
+<ul>
+<li><strong>不安全</strong>: 因为 Base64 并不是加密算法，只是一种编码，其编码规则是公开的，任何人都可以进行解码。</li>
+<li><strong>不高效</strong>: 通过它编码后的数据体积会增大至少 1&#x2F;3，存储和传输都会变得更低效（更慢、更耗资源）。</li>
+</ul>
+<h2 id="URL-encoding"><a href="#URL-encoding" class="headerlink" title="URL encoding"></a>URL encoding</h2><p>这种编码也就是我们在浏览器的地址栏中看到的编码，它会将 URL 中的保留字符（如空格、<code>&amp;</code>、<code>?</code>）使用 <code>%</code> 百分号进行编码。</p>
+<p>比如访问 <code>http://www.example.com/``这是示例</code> 网址时，其中的 URL 实际上会变为 <code>http://www.example.com/%E8%BF%99%E6%98%AF%E7%A4%BA%E4%BE%8B</code>。</p>
+<p>URL 编码的作用是<strong>消除歧义，避免解析错误</strong>。比如要表示一个 <code>/</code> 字符本身，而不是当做路径分隔符时，我们就可以使用 <code>%2F</code> 来代替。</p>
+<h2 id="压缩和解压缩"><a href="#压缩和解压缩" class="headerlink" title="压缩和解压缩"></a>压缩和解压缩</h2><p><strong>压缩</strong>: 把数据换一种方式来存储，以减小存储空间。</p>
+<p><strong>解压缩</strong>: 把压缩后的数据还原为原先的形式，以便使用。</p>
+<p>常见的压缩算法有: DEFLATE、JPEG、MP3。</p>
+<p>其中 DEFLATE 就是 ZIP 的压缩算法，ZIP 是我们常见的打包格式。其正式说法叫做 Archive（归档），将多个文件打包成一个文件，方便传输和存储。</p>
+<p>我们来看看什么是数据压缩。</p>
+<p>比如对于如下数据：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">AAAABBBCCDEEEE</span><br></pre></td></tr></table></figure>
+
+<p>我可以压缩为：<code>4A3B2C1D4E</code>，这种压缩算法非常粗暴，如果原始数据变为这样：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ABCDE</span><br></pre></td></tr></table></figure>
+
+<p>压缩结果：<code>1A1B1C1D1E</code> 反而比原始数据大。一个优秀的压缩算法，它能在常见数据下实现高压缩率。不过，你需要知道的是不存在一种能够压缩任意数据的无损算法。对于一串完全随机的数据，经过无损压缩算法处理后，体积可能会变大。</p>
+<p>当然对于上述的压缩结果，我们还能还原为原数据。例如 <code>4A3B2C1D4E</code>，我们只需根据字符的出现次数以及对应的字符，即可还原为 <code>AAAABBBCCDEEEE</code>。</p>
+<p>那压缩属于编码吗？</p>
+<p>其实编码是没有一个官方标准的。通常来说，我们认为的编码是使用一套固定的规则，将数据从 A 格式转换为 B 格式，并且还能复原，不损失任何数据。这么来说，压缩就属于编码。</p>
+<h2 id="媒体数据的编解码"><a href="#媒体数据的编解码" class="headerlink" title="媒体数据的编解码"></a>媒体数据的编解码</h2><p>媒体数据指的是将音视频、图片等数据。</p>
+<p>以图片的编解码为例。</p>
+<p>图片的编码：把图片数据转成 JPG、PNG 等文件的编码格式。</p>
+<p>图片的解码：把 JPG、PNG 等文件中的数据解析成标准的图像数据。</p>
+<p>另外，媒体数据的压缩通常是<strong>有损压缩</strong>。它之所以可行，是因为利用了我们无法察觉到图片或音频中的所有细节。有损压缩就是通过丢弃了这些我们感知不到的数据，从而实现了更高的压缩率。MP3 就是一个典型的例子，正因为有损压缩后的数据无法还原为原数据，所以有损压缩并不算我们平常所说的编码。</p>
+<h2 id="序列化"><a href="#序列化" class="headerlink" title="序列化"></a>序列化</h2><p>在 Java 中，我们经常需要让某个类实现 <code>Serializable</code> 接口，使其能够序列化。</p>
+<p>而这个序列化，其实是把处于内存中的数据对象转换成字节序列的过程。</p>
+<p>例如：我们会将 <code>zhangsan</code> 这个对象转为一段连续的数据，使其能够存储到文件或是在网络上进行传输。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">data</span> <span class="keyword">class</span> <span class="title class_">Human</span>(<span class="keyword">val</span> name: String, <span class="keyword">val</span> age: <span class="built_in">Int</span>, <span class="keyword">val</span> gender: String, <span class="keyword">val</span> mate: Human? = <span class="literal">null</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> zhangsan = Human(<span class="string">&quot;张三&quot;</span>, <span class="number">18</span>, <span class="string">&quot;男&quot;</span>, Human(<span class="string">&quot;王五&quot;</span>, <span class="number">20</span>, <span class="string">&quot;女&quot;</span>))</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>比如我们转为 JSON 格式。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="string">&quot;name&quot;</span>:<span class="string">&quot;张三&quot;</span>,<span class="string">&quot;age&quot;</span>:<span class="number">18</span>,<span class="string">&quot;gender&quot;</span>:<span class="string">&quot;男&quot;</span>,<span class="string">&quot;mate&quot;</span>:&#123;<span class="string">&quot;name&quot;</span>:<span class="string">&quot;王五&quot;</span>,<span class="string">&quot;age&quot;</span>:<span class="number">20</span>,<span class="string">&quot;gender&quot;</span>:<span class="string">&quot;女&quot;</span>&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也可以是这样的：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Human(name=张三, age=<span class="number">18</span>, gender=男, mate=Human(name=王五, age=<span class="number">20</span>, gender=女, mate=<span class="literal">null</span>))</span><br></pre></td></tr></table></figure>
+
+<p>只要将内存中的这个对象转成序列，就叫序列化。不一定非得是实现了某个接口，调用了某个方法。</p>
+<p>反序列化就是将序列化后的字节序列重新转为内存中的对象。</p>
+<p>为什么需要序列化？</p>
+<p>就是要让内存中的对象能够被存储、被传输。根本原因是，内存中的对象结构很复杂，可能由多个部分组成，通过引用进行关联，散落在了内存的不同地方。而往磁盘存文件或者在网络上传输，都需要一段连续的字节数据。序列化，就是将内存中这些零散的对象结构，转换成一段连续字节流的过程。</p>
+<h1 id="Hash"><a href="#Hash" class="headerlink" title="Hash"></a>Hash</h1><p><strong>定义</strong>：可以把任意数据转换成一个固定长度的字符串（哈希值）。</p>
+<p><strong>作用</strong>：Hash 值可用于摘要和数字指纹。</p>
+<p><strong>经典算法</strong>: MD5、SHA1、SHA256 等。</p>
+<p>哈希值为什么需要根据特定算法得出？</p>
+<p>因为好的哈希函数有以下特点：</p>
+<ul>
+<li>相同的输入，必定得到相同的输出。</li>
+<li>对于不同的输入，能够尽可能产生不同的输出，避免碰撞（冲突）。</li>
+<li>输入数据的微小变化，会导致输出具有差异。</li>
+</ul>
+<p>Hash 的实际用途主要有：</p>
+<ul>
+<li><strong>数据完整性的验证</strong></li>
+</ul>
+<p>比如对于一个重要文件，如果你计算它的哈希值与其标定的哈希值相同，那么你就可以认为这份文件未被篡改，是完整的。</p>
+<ul>
+<li><strong>身份的快速匹配&#x2F;数据的快速比较</strong></li>
+</ul>
+<p>我们在重写类的 <code>equals</code> 方法时，通常要同时重写 <code>hashCode</code> 方法。这是因为 <code>HashMap</code> 等这类容器，在判断元素是否存在时，为了效率，会先使用 <code>hashCode</code> 方法进行比较。因为<strong>如果两个对象的 hashCode值不同，那么这两个对象一定不相等</strong>。这样可以快速排除掉大部分不同的元素。只有当 <code>hashCode</code> 值相同时，再使用 <code>equals</code> 方法做最终判断，因为 <code>hashCode</code> 值相同不代表两个对象就一定相等，有可能是发生了哈希碰撞。</p>
+<blockquote>
+<p>为什么要用 <code>hashCode</code> 方法，而不直接使用 <code>equals</code> 方法进行判断？</p>
+<p>这是因为 <code>hashCode</code> 的运算非常快，用于判断两个元素不相等，最合适不过了。</p>
+</blockquote>
+<p>另外，目前密码的存储都是将密码的哈希值存入数据库。并不是进行明文存储，因为有泄露风险。密码进行验证时，只需将输入的密码进行 Hash，再与数据库中存的哈希值进行比对，就能够判断密码是否正确。</p>
+<p>这样，即使数据库泄露了，被别人拿到了用户密码的哈希值，别人也无法获取到真实的密码，因为 Hash 运算是不可逆的。</p>
+<p><strong>道高一尺魔高一丈？</strong></p>
+<p><strong>彩虹表</strong>是将常见的密码与它们的哈希值存到数据库中，这样别人就可以通过已知的哈希值，来推导出真实的密码了。</p>
+<p><strong>魔高一尺道高一丈？</strong></p>
+<p>在计算密码的哈希值之前，通常会给密码<strong>加上盐</strong>，也就是给密码附加上额外的数据，这个数据可以是固定的，也可以是随机的。这样，别人即使知道一些常用密码的哈希值，也是无法破解密码的，因为存入数据库的值，并不是真实密码的哈希值，而是加上了额外数据计算出的哈希值。</p>
+<p>例如：你的真实密码是 <code>136520</code>。我并不会计算当前字符串的哈希值，而是会加上某个字符串，如 <code>zxc</code>，再计算加上后的字符串的哈希值，存入到数据库中。</p>
+<blockquote>
+<p>最后说说 Hash 是编码吗，是加密吗？</p>
+<ul>
+<li>Hash 并不是编码，因为它只是原数据的摘要，并不能通过它来还原数据。</li>
+<li>Hash 也不是加密，MD5 常常被认为是 “不可逆加密”。但加密的定义是，使用加密算法对数据进行加密隐藏原文，然后能够使用解密算法还原数据。而 Hash 的目的是生成数据的摘要进行验证，是单向的，无法还原数据。所以 MD5 等算法并不是加密算法。</li>
+</ul>
+</blockquote>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/" data-id="cuidVOUhtkjg8qMMyV4rAJaCE" data-title="编码、加密、Hash、序列化" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+
+  
     <article id="post-HTTP工作原理、请求方法与状态码" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/" class="article-date">
@@ -204,7 +386,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/" data-id="cuidFcgDDEoafzjlcHAKABkZt" data-title="HTTP工作原理、请求方法与状态码" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/" data-id="cuido6msFIOrWNKVvpDWW7Uwc" data-title="HTTP工作原理、请求方法与状态码" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -361,7 +543,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/" data-id="cuidR5m9KgekCDKvABd2N13Hm" data-title="HTTP的Header和Body" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/13/HTTP%E7%9A%84Header%E5%92%8CBody/" data-id="cuid03ODzWq2O8i8GJKBeMlhy" data-title="HTTP的Header和Body" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -460,7 +642,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/08/livedata/" data-id="cuid-VH2KuE79BAohPEHK05Vw" data-title="livedata" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/08/livedata/" data-id="cuidilYGYKV6Kr0oB3TOh_Aol" data-title="livedata" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -581,7 +763,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/08/lifecycle/" data-id="cuidHWnSxD8dDJs0IS6cw0lB5" data-title="lifecycle" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/08/lifecycle/" data-id="cuidXHQ2x9FAwSgYexWpqAc8a" data-title="lifecycle" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -634,7 +816,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/01/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/" data-id="cuidW7DveVWDgfg6H7Yxtz-Wm" data-title="观察者模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/01/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/" data-id="cuidEXmbB1DaSq2GzvEibe8Z1" data-title="观察者模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -687,7 +869,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/02/01/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/" data-id="cuidXLImMJMi8oFepq7My_2h2" data-title="策略模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/02/01/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/" data-id="cuidtr8sEu7HELh8lGgFMzTBV" data-title="策略模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -920,7 +1102,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/25/kotlin%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" data-id="cuidwrZZkAOiptP8pGlorvX2N" data-title="kotlin面向对象" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/01/25/kotlin%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" data-id="cuidH08tTM4JM5fou-CJroa5C" data-title="kotlin面向对象" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -974,7 +1156,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/25/%E8%AE%BF%E9%97%AE%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" data-id="cuid47b2IxUJnACVgYFKicJs7" data-title="访问器设计模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/01/25/%E8%AE%BF%E9%97%AE%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" data-id="cuid1E2QO11ZR7dJCXzNfEUJH" data-title="访问器设计模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -1021,60 +1203,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/25/%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" data-id="cuidPKFDNU4RkWOcIYPUkU4B5" data-title="迭代器设计模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-模板方法设计模式" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/01/24/%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="article-date">
-  <time class="dt-published" datetime="2026-01-24T15:11:34.000Z" itemprop="datePublished">2026-01-24</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/01/24/%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">模板方法设计模式</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <h2 id="动机"><a href="#动机" class="headerlink" title="动机"></a>动机</h2><ul>
-<li>在软件构建过程中，对于某一项任务，它常常有稳定的整体操作结构，但各个子步骤却有很多改变的需求，或者由于固有的原因（比如框架与应用之间的关系）而无法和任务的整体结构同时实现</li>
-<li>如何在确定稳定操作的前提下，灵活应对各个子步骤的变化或者晚期实现的需求？</li>
-</ul>
-<h2 id="模式定义"><a href="#模式定义" class="headerlink" title="模式定义"></a>模式定义</h2><p>定义一个操作中的算法骨架（稳定），而将一些步骤延迟（变化）到子类中。模板方法使得子类可以不改变（复用）一个算法的结构可重定义（重写）该算法的某些特定步骤。</p>
-<h2 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h2><img src="/2026/01/24/%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/template_method.png" class="">
-
-<h2 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h2><p>使用模板方法设计模式前</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//程序库开发人员</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Library</span>&#123;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">Step1</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Step3</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Step5</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//应用程序开发人员</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Application</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="type">bool</span> <span class="title">Step2</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Step4</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="comment">//...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="function">Library <span class="title">lib</span><span class="params">()</span></span>;</span><br><span class="line">	<span class="function">Application <span class="title">app</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">	lib.<span class="built_in">Step1</span>();</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (app.<span class="built_in">Step2</span>())&#123;</span><br><span class="line">		lib.<span class="built_in">Step3</span>();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++)&#123;</span><br><span class="line">		app.<span class="built_in">Step4</span>();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	lib.<span class="built_in">Step5</span>();</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>使用模板方法设计模式</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//程序库开发人员</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Library</span>&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">//稳定 template method</span></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">Run</span><span class="params">()</span></span>&#123;</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">Step1</span>();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">Step2</span>()) &#123; <span class="comment">//支持变化 ==&gt; 虚函数的多态调用</span></span><br><span class="line">            <span class="built_in">Step3</span>(); </span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++)&#123;</span><br><span class="line">            <span class="built_in">Step4</span>(); <span class="comment">//支持变化 ==&gt; 虚函数的多态调用</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="built_in">Step5</span>();</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">	<span class="keyword">virtual</span> ~<span class="built_in">Library</span>()&#123; &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">	</span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">Step1</span><span class="params">()</span> </span>&#123; <span class="comment">//稳定</span></span><br><span class="line">        <span class="comment">//.....</span></span><br><span class="line">    &#125;</span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">Step3</span><span class="params">()</span> </span>&#123;<span class="comment">//稳定</span></span><br><span class="line">        <span class="comment">//.....</span></span><br><span class="line">    &#125;</span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">Step5</span><span class="params">()</span> </span>&#123; <span class="comment">//稳定</span></span><br><span class="line">		<span class="comment">//.....</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="type">bool</span> <span class="title">Step2</span><span class="params">()</span> </span>= <span class="number">0</span>;<span class="comment">//变化</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Step4</span><span class="params">()</span> </span>=<span class="number">0</span>; <span class="comment">//变化</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//应用程序开发人员</span></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Application</span> : <span class="keyword">public</span> Library &#123;</span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">	<span class="function"><span class="keyword">virtual</span> <span class="type">bool</span> <span class="title">Step2</span><span class="params">()</span></span>&#123;</span><br><span class="line">		<span class="comment">//... 子类重写实现</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">Step4</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="comment">//... 子类重写实现</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function">	</span>&#123;</span><br><span class="line">	    Library* pLib=<span class="keyword">new</span> <span class="built_in">Application</span>();</span><br><span class="line">	    lib-&gt;<span class="built_in">Run</span>();</span><br><span class="line"></span><br><span class="line">		<span class="keyword">delete</span> pLib;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/01/24/%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" data-id="cuidHhIkTTcgGBwRfvGnk1mKq" data-title="模板方法设计模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="http://example.com/2026/01/25/%E8%BF%AD%E4%BB%A3%E5%99%A8%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" data-id="cuidpk9L6R6xzKOk-VbrMd3ry" data-title="迭代器设计模式" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -1116,7 +1245,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Tag Cloud</h3>
     <div class="widget tagcloud">
-      <a href="/tags/jetpack%E5%85%A8%E5%AE%B6%E6%A1%B6/" style="font-size: 15px;">jetpack全家桶</a> <a href="/tags/kotlin/" style="font-size: 15px;">kotlin</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 15px;">网络</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 20px;">设计模式</a>
+      <a href="/tags/jetpack%E5%85%A8%E5%AE%B6%E6%A1%B6/" style="font-size: 13.33px;">jetpack全家桶</a> <a href="/tags/kotlin/" style="font-size: 13.33px;">kotlin</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 16.67px;">网络</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 20px;">设计模式</a>
     </div>
   </div>
 
@@ -1125,7 +1254,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">January 2026</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">January 2026</a></li></ul>
     </div>
   </div>
 
@@ -1136,6 +1265,10 @@
     <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/">编码、加密、Hash、序列化</a>
+          </li>
         
           <li>
             <a href="/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/">HTTP工作原理、请求方法与状态码</a>
@@ -1151,10 +1284,6 @@
         
           <li>
             <a href="/2026/02/08/lifecycle/">lifecycle</a>
-          </li>
-        
-          <li>
-            <a href="/2026/02/01/%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F/">观察者模式</a>
           </li>
         
       </ul>
