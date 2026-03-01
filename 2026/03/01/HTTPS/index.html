@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>HTTPS | Jian Zhang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="定义HTTP over SSL 的简称，即工作在 SSL (或 TLS)上的 HTTP。说白了就是加密通信 的 HTTP。 HTTP Secure &#x2F;HTTP over SSL &#x2F; HTTP over TLS SSLSecure Socket Layer -&gt; TLS Transport Layer Security 定义：在HTTP之下增加的一个安全层，位于HTTP和T">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTPS">
+<meta property="og:url" content="http://example.com/2026/03/01/HTTPS/index.html">
+<meta property="og:site_name" content="Jian Zhang">
+<meta property="og:description" content="定义HTTP over SSL 的简称，即工作在 SSL (或 TLS)上的 HTTP。说白了就是加密通信 的 HTTP。 HTTP Secure &#x2F;HTTP over SSL &#x2F; HTTP over TLS SSLSecure Socket Layer -&gt; TLS Transport Layer Security 定义：在HTTP之下增加的一个安全层，位于HTTP和T">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/2026/03/01/HTTPS/https_1.png">
+<meta property="og:image" content="http://example.com/2026/03/01/HTTPS/https_2.png">
+<meta property="og:image" content="http://example.com/2026/03/01/HTTPS/https_3.png">
+<meta property="og:image" content="http://example.com/2026/03/01/HTTPS/https_4.png">
+<meta property="og:image" content="http://example.com/2026/03/01/HTTPS/https_5.png">
+<meta property="og:image" content="http://example.com/2026/03/01/HTTPS/https_6.png">
+<meta property="og:image" content="http://example.com/2026/03/01/HTTPS/https_7.png">
+<meta property="og:image" content="http://example.com/2026/03/01/HTTPS/https_8.png">
+<meta property="og:image" content="http://example.com/2026/03/01/HTTPS/https_9.png">
+<meta property="og:image" content="http://example.com/2026/03/01/HTTPS/https_10.png">
+<meta property="og:image" content="http://example.com/2026/03/01/HTTPS/https_11.png">
+<meta property="article:published_time" content="2026-03-01T06:50:44.000Z">
+<meta property="article:modified_time" content="2026-03-01T07:03:55.767Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2026/03/01/HTTPS/https_1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Jian Zhang" type="application/atom+xml">
+  
+  
+    <link rel="shortcut icon" href="/favicon.png">
+  
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Jian Zhang</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">技术 · 设计模式 · 思考</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        
+          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
+        
+        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+
+      <div class="outer">
+        <section id="main"><article id="post-HTTPS" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/03/01/HTTPS/" class="article-date">
+  <time class="dt-published" datetime="2026-03-01T06:50:44.000Z" itemprop="datePublished">2026-03-01</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      HTTPS
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><p>HTTP over SSL 的简称，即工作在 SSL (或 TLS)上的 HTTP。说白了就是加密通信 的 HTTP。 <strong>HTTP Secure &#x2F;HTTP over SSL &#x2F; HTTP over TLS</strong></p>
+<h3 id="SSL"><a href="#SSL" class="headerlink" title="SSL"></a>SSL</h3><p><strong>Secure Socket Layer -&gt; TLS Transport Layer Security</strong></p>
+<p>定义：在HTTP之下增加的一个安全层，位于HTTP和TCP之间</p>
+<ul>
+<li>HTTPS的底层支持就是SSL,一开始他们的关系类似于http和html类似，他们的关系是共生的</li>
+<li>后来改名TLS</li>
+</ul>
+<h3 id="本质："><a href="#本质：" class="headerlink" title="本质："></a>本质：</h3><p>在客户端和服务器之间用<strong>非对称加密</strong>协商出一套<strong>对称密钥</strong>，每次发送信息之前将内容加密，收到之后解密，达到内容的加密传输</p>
+<blockquote>
+<p>HTTPS并不比HTTP高级，也不是HTTP衍生的协议，只是对HTTP进行了包装，加了一个安全的罩子，打开包装，里面就是HTTP</p>
+</blockquote>
+<p><code>HTTPS并不是协议，也没有版本号，HTTP是协议</code></p>
+<h4 id="为什么不直接用非对称加密"><a href="#为什么不直接用非对称加密" class="headerlink" title="为什么不直接用非对称加密?"></a>为什么不直接用非对称加密?</h4><p>非对称加密由于使用了复杂了数学原理，因此计算相当复杂，如果完全使用非对称 加密来加密通信内容，会严重影响网络通信的性能</p>
+<h2 id="HTTPS连接"><a href="#HTTPS连接" class="headerlink" title="HTTPS连接"></a>HTTPS连接</h2><ul>
+<li>客户端请求建立TLS连接</li>
+<li>服务器发回证书</li>
+<li>客户端验证服务器证书</li>
+<li>客户端信任服务后，和服务器协商对称密钥</li>
+<li>使用对称秘钥开始通信</li>
+</ul>
+<h4 id="1-Client-Hello"><a href="#1-Client-Hello" class="headerlink" title="1. Client Hello"></a>1. Client Hello</h4><p>会发送一个单字节信息，附加上一些可选内容给服务器</p>
+<ul>
+<li>可选的TLS版本</li>
+<li>可选的加密套件 <ul>
+<li>可选的对称加密算法</li>
+<li>可选的非对称加密算法</li>
+<li>可选的hash算法</li>
+</ul>
+</li>
+<li>客户端随机数</li>
+</ul>
+<p>如下图所示：</p>
+<img src="/2026/03/01/HTTPS/https_1.png" class="">
+
+<img src="/2026/03/01/HTTPS/https_2.png" class="">
+
+<h4 id="2-Server-Hello"><a href="#2-Server-Hello" class="headerlink" title="2. Server Hello"></a>2. Server Hello</h4><p>与客户端类似，服务器会发送一个单字节信息及一些可选内容给客户端，同时会保留自己的<strong>服务器随机数</strong></p>
+<ul>
+<li>可选的TLS版本</li>
+<li>可选的加密套件 <ul>
+<li>可选的对称加密算法</li>
+<li>可选的非对称加密算法</li>
+<li>可选的hash算法</li>
+</ul>
+</li>
+<li>服务器随机数</li>
+</ul>
+<p>如下图所示：</p>
+<img src="/2026/03/01/HTTPS/https_3.png" class="">
+
+<img src="/2026/03/01/HTTPS/https_4.png" class="">
+
+<h4 id="3-服务器证书-信任建立"><a href="#3-服务器证书-信任建立" class="headerlink" title="3. 服务器证书 信任建立"></a>3. 服务器证书 信任建立</h4><p>服务器发送证书给客户端，同时客户端进行验证，证书中包含了</p>
+<ul>
+<li>服务器信息 <ul>
+<li>服务器公钥（其实是个数据）</li>
+<li>服务器主机名</li>
+<li>服务器地区</li>
+</ul>
+</li>
+<li>服务器证书的签名</li>
+<li>证书签发机构 <ul>
+<li>证书签发机构的公钥：即用于验证这个「公钥签名」的另一个公钥</li>
+<li>证书签发机构的名字</li>
+<li>证书签发机构的地区</li>
+<li>证书签发机构的公钥的签名</li>
+</ul>
+</li>
+<li>根证书机构 <ul>
+<li>根证书机构的公钥（不会无限递归，因为其可信度已经很高，一般都是设备的根证书，比如mac系统的根证书）</li>
+</ul>
+</li>
+</ul>
+<img src="/2026/03/01/HTTPS/https_5.png" class="">
+
+<ul>
+<li>根证书机构的名字</li>
+<li>根证书机构的地区</li>
+</ul>
+<img src="/2026/03/01/HTTPS/https_6.png" class="">
+
+<h4 id="4-Pre-master-Screct"><a href="#4-Pre-master-Screct" class="headerlink" title="4. Pre-master Screct"></a>4. Pre-master Screct</h4><p>客户端发送Pre-master Screct数据，是由客户端生成的一个加密随机数</p>
+<p>通信双方都持有Pre-master Screct之后，会通过①客户端随机数②服务器随机数③Pre-master Screct共同计算出-&gt;<strong>Master Screct</strong></p>
+<p>然后Master Screct数据生成以下信息（一共6个，以下4个是主要信息），由此就能实现对称加密的加密通信</p>
+<ul>
+<li>客户端加密密钥</li>
+<li>服务端加密密钥</li>
+<li>客户端MAC secret</li>
+<li>服务端MAC secret <ul>
+<li>HMAC（hash-based message authenticate code ）：基于 hash 的消息验证码，是 安全通信中必要的组成部件。</li>
+<li>主要是 防止消息被篡改，和对称加密一起保护数据通信的完整性。</li>
+</ul>
+</li>
+</ul>
+<img src="/2026/03/01/HTTPS/https_7.png" class="">
+
+<img src="/2026/03/01/HTTPS/https_8.png" class="">
+
+<h4 id="5-客户端通知：将使用加密通信"><a href="#5-客户端通知：将使用加密通信" class="headerlink" title="5. 客户端通知：将使用加密通信"></a>5. 客户端通知：将使用加密通信</h4><img src="/2026/03/01/HTTPS/https_9.png" class="">
+
+<h4 id="6-客户端发送：Finished"><a href="#6-客户端发送：Finished" class="headerlink" title="6. 客户端发送：Finished"></a>6. 客户端发送：Finished</h4><p>包含前面5步的信息合在一起进行HMAC之后的信息</p>
+<img src="/2026/03/01/HTTPS/https_10.png" class="">
+
+<img src="/2026/03/01/HTTPS/https_11.png" class="">
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://example.com/2026/03/01/HTTPS/" data-id="cuidu1nSxSELgSWLf6ldJJNDu" data-title="HTTPS" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2026/03/01/tcp-ip/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">tcp/ip</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/jetpack%E5%85%A8%E5%AE%B6%E6%A1%B6/" rel="tag">jetpack全家桶</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/kotlin/" rel="tag">kotlin</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%AE%97%E6%B3%95/" rel="tag">算法</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BD%91%E7%BB%9C/" rel="tag">网络</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag">设计模式</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/jetpack%E5%85%A8%E5%AE%B6%E6%A1%B6/" style="font-size: 13.33px;">jetpack全家桶</a> <a href="/tags/kotlin/" style="font-size: 13.33px;">kotlin</a> <a href="/tags/%E7%AE%97%E6%B3%95/" style="font-size: 10px;">算法</a> <a href="/tags/%E7%BD%91%E7%BB%9C/" style="font-size: 16.67px;">网络</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" style="font-size: 20px;">设计模式</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/03/">March 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/02/">February 2026</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/01/">January 2026</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2026/03/01/HTTPS/">HTTPS</a>
+          </li>
+        
+          <li>
+            <a href="/2026/03/01/tcp-ip/">tcp/ip</a>
+          </li>
+        
+          <li>
+            <a href="/2026/03/01/%E7%99%BB%E5%BD%95%E5%92%8C%E6%8E%88%E6%9D%83/">登录和授权</a>
+          </li>
+        
+          <li>
+            <a href="/2026/03/01/%E7%BC%96%E7%A0%81%E3%80%81%E5%8A%A0%E5%AF%86%E3%80%81Hash%E3%80%81%E5%BA%8F%E5%88%97%E5%8C%96/">编码、加密、Hash、序列化</a>
+          </li>
+        
+          <li>
+            <a href="/2026/02/13/HTTP%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%E3%80%81%E8%AF%B7%E6%B1%82%E6%96%B9%E6%B3%95%E4%B8%8E%E7%8A%B6%E6%80%81%E7%A0%81/">HTTP工作原理、请求方法与状态码</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      
+      &copy; 2026 John Doe<br>
+      Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
